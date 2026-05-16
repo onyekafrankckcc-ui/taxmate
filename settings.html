@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaxMate – Account Settings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+
+    /* ══════════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════════ */
+    [data-theme="light"] {
+      --bg:              #f2f5f3;
+      --bg-sidebar:      #ffffff;
+      --bg-topbar:       rgba(255,255,255,0.95);
+      --bg-card:         #ffffff;
+      --bg-card2:        #f8fbf9;
+      --bg-input:        #f4f7f5;
+      --bg-overlay:      rgba(0,0,0,0.45);
+      --bg-field:        #f0f4f1;
+      --bg-bank-icon:    #eaf5ef;
+      --bg-pro-badge:    rgba(0,196,106,0.1);
+      --text:            #0c1a10;
+      --text-muted:      #5a7060;
+      --text-label:      #8a9e8e;
+      --border:          #e4ebe6;
+      --border-sidebar:  #edf2ee;
+      --border-field:    #dce8de;
+      --green:           #1a7a3c;
+      --green-accent:    #00c46a;
+      --green-dim:       rgba(0,196,106,0.10);
+      --green-mid:       rgba(0,196,106,0.22);
+      --green-glow:      rgba(0,196,106,0.15);
+      --shadow:          0 2px 16px rgba(0,0,0,0.07);
+      --shadow-card:     0 1px 8px rgba(0,0,0,0.06);
+      --toggle-track:    #d4e8da;
+      --nav-active-bg:   rgba(0,196,106,0.08);
+      --nav-active-bar:  #1a7a3c;
+      --profile-card-bg: linear-gradient(145deg,#1a7a3c 0%,#0d5a28 100%);
+      --active-badge-bg: rgba(0,196,106,0.1);
+      --active-badge-col:#1a7a3c;
+      --syncing-badge-bg:rgba(59,130,246,0.1);
+      --syncing-badge-col:#2563eb;
+      --delete-bg:       rgba(220,60,60,0.06);
+      --delete-col:      #c03030;
+      --delete-border:   rgba(220,60,60,0.2);
+      --upgrade-bg:      linear-gradient(135deg,#1a7a3c 0%,#0d5a28 100%);
+      --tab-active:      #1a7a3c;
+      --tab-inactive:    #5a7060;
+      --vat-on-bg:       #1a7a3c;
+      --progress-bg:     rgba(255,255,255,0.25);
+      --progress-fill:   #00c46a;
+      --2fa-off-bg:      #dce8de;
+    }
+
+    [data-theme="dark"] {
+      --bg:              #0a0f0d;
+      --bg-sidebar:      #0e1510;
+      --bg-topbar:       rgba(14,21,16,0.95);
+      --bg-card:         #111816;
+      --bg-card2:        #141c18;
+      --bg-input:        #0e1510;
+      --bg-overlay:      rgba(0,0,0,0.65);
+      --bg-field:        #0e1510;
+      --bg-bank-icon:    #0d2016;
+      --bg-pro-badge:    rgba(0,196,106,0.12);
+      --text:            #f0f5f2;
+      --text-muted:      #8fa89a;
+      --text-label:      #6a8a78;
+      --border:          rgba(255,255,255,0.07);
+      --border-sidebar:  rgba(255,255,255,0.06);
+      --border-field:    rgba(255,255,255,0.1);
+      --green:           #00c46a;
+      --green-accent:    #00c46a;
+      --green-dim:       rgba(0,196,106,0.10);
+      --green-mid:       rgba(0,196,106,0.22);
+      --green-glow:      rgba(0,196,106,0.18);
+      --shadow:          0 2px 24px rgba(0,0,0,0.4);
+      --shadow-card:     0 1px 12px rgba(0,0,0,0.35);
+      --toggle-track:    #1e2922;
+      --nav-active-bg:   rgba(0,196,106,0.10);
+      --nav-active-bar:  #00c46a;
+      --profile-card-bg: linear-gradient(145deg,#0d5a28 0%,#083d1a 100%);
+      --active-badge-bg: rgba(0,196,106,0.12);
+      --active-badge-col:#00c46a;
+      --syncing-badge-bg:rgba(59,130,246,0.12);
+      --syncing-badge-col:#60a5fa;
+      --delete-bg:       rgba(220,60,60,0.08);
+      --delete-col:      #f07070;
+      --delete-border:   rgba(220,60,60,0.2);
+      --upgrade-bg:      linear-gradient(135deg,#0d5a28 0%,#083d1a 100%);
+      --tab-active:      #00c46a;
+      --tab-inactive:    #8fa89a;
+      --vat-on-bg:       #00c46a;
+      --progress-bg:     rgba(255,255,255,0.15);
+      --progress-fill:   #00c46a;
+      --2fa-off-bg:      #1a2a1e;
+    }
+
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      transition: background .35s, color .35s; overflow: hidden;
+    }
+    h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+    /* ══════════════════════════════════════
+       THEME TOGGLE
+    ══════════════════════════════════════ */
+    .theme-toggle {
+      position: fixed; top: 3.05rem; right: 0.2rem; z-index: 99999;
+      background: var(--toggle-track); border: 1px solid var(--border);
+      border-radius: 50px; width: 54px; height: 28px;
+      cursor: pointer; display: flex; align-items: center; padding: 3px 4px;
+      transition: background .35s, border-color .35s; box-shadow: var(--shadow);
+    }
+    .toggle-knob {
+      width: 22px; height: 22px; background: var(--green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; line-height: 1; transition: transform .35s; flex-shrink: 0;
+    }
+    [data-theme="light"] .toggle-knob { transform: translateX(0); }
+    [data-theme="dark"]  .toggle-knob { transform: translateX(24px); }
+
+    /* ══════════════════════════════════════
+       APP SHELL
+    ══════════════════════════════════════ */
+    .app-shell { display: flex; height: 100vh; overflow: hidden; position: relative; }
+
+    /* ══════════════════════════════════════
+       SIDEBAR — off-canvas on mobile
+    ══════════════════════════════════════ */
+    .sidebar {
+      width: 210px; flex-shrink: 0;
+      background: var(--bg-sidebar); border-right: 1px solid var(--border-sidebar);
+      display: flex; flex-direction: column;
+      transition: background .35s, border-color .35s, transform .3s;
+      z-index: 200; height: 100%;
+    }
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 32px rgba(0,0,0,0.2);
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: var(--bg-overlay); z-index: 190;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    .sidebar-brand {
+      padding: 1.1rem 1.3rem 1rem;
+      border-bottom: 1px solid var(--border-sidebar);
+      transition: border-color .35s;
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .brand-logo-wrap { display: flex; align-items: center; gap: .7rem; }
+    .brand-logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--green); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; color: #fff; flex-shrink: 0;
+    }
+    .brand-name {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+      color: var(--text); text-decoration: none; display: block; transition: color .35s;
+    }
+    .brand-name span { color: var(--green); }
+    .brand-sub {
+      font-size: .56rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--text-label);
+      margin-top: .1rem; transition: color .35s;
+    }
+    .sidebar-close {
+      display: none; background: none; border: none;
+      color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: .1rem;
+      transition: color .2s;
+    }
+    .sidebar-close:hover { color: var(--text); }
+    @media (max-width: 900px) { .sidebar-close { display: block; } }
+
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1.3rem; font-size: .9rem; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color .2s, background .2s, border-color .2s; cursor: pointer;
+    }
+    .nav-item:hover { color: var(--text); background: var(--nav-active-bg); }
+    .nav-item.active {
+      color: var(--green); font-weight: 700;
+      background: var(--nav-active-bg); border-left-color: var(--nav-active-bar);
+    }
+    .nav-item i { font-size: 1rem; width: 18px; text-align: center; }
+
+    /* Upgrade badge in sidebar */
+    .upgrade-badge {
+      margin: 0 1rem 1rem;
+      background: var(--upgrade-bg); border-radius: 14px;
+      padding: 1rem; color: #fff;
+    }
+    .upgrade-eyebrow { font-size: .65rem; color: rgba(255,255,255,0.6); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .3rem; }
+    .upgrade-title { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 800; margin-bottom: .7rem; }
+    .btn-go-premium {
+      width: 100%; background: var(--green-accent); color: #fff;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: .8rem;
+      border: none; border-radius: 50px; padding: .4rem;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .btn-go-premium:hover { opacity: .88; }
+
+    .sidebar-footer {
+      padding: .8rem 1.1rem; border-top: 1px solid var(--border-sidebar);
+      transition: border-color .35s;
+    }
+    .sidebar-footer-link {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .5rem .2rem; font-size: .87rem; color: var(--text-muted);
+      cursor: pointer; transition: color .2s;
+    }
+    .sidebar-footer-link:hover { color: var(--text); }
+    .sidebar-footer-link i { font-size: .95rem; width: 18px; text-align: center; }
+
+    /* ══════════════════════════════════════
+       MAIN AREA
+    ══════════════════════════════════════ */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--bg-topbar); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: .65rem 1.4rem; display: flex; align-items: center; gap: .9rem;
+      transition: background .35s, border-color .35s; flex-shrink: 0;
+    }
+    .hamburger {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: 8px; padding: .32rem .5rem; cursor: pointer;
+      color: var(--text-muted); font-size: 1.1rem;
+      transition: border-color .35s, color .2s; flex-shrink: 0; align-items: center;
+    }
+    .hamburger:hover { color: var(--text); border-color: var(--green); }
+    @media (max-width: 900px) { .hamburger { display: flex; } }
+
+    /* Topbar tabs */
+    .topbar-tabs { display: flex; align-items: center; gap: .1rem; }
+    .topbar-tab {
+      font-size: .88rem; font-weight: 500; color: var(--tab-inactive);
+      padding: .3rem .8rem; text-decoration: none; position: relative;
+      cursor: pointer; transition: color .2s;
+    }
+    .topbar-tab:hover { color: var(--text); }
+    .topbar-tab.active {
+      color: var(--tab-active); font-weight: 700;
+    }
+    .topbar-tab.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
+      height: 2px; background: var(--tab-active); border-radius: 2px;
+    }
+
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+    .topbar-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: .95rem; cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .topbar-icon:hover { background: var(--bg-input); color: var(--text); }
+    .topbar-avatar {
+      width: 34px; height: 34px; border-radius: 50%; overflow: hidden;
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .72rem;
+      color: #fff; flex-shrink: 0; cursor: pointer;
+    }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 1.5rem 1.4rem 2rem; transition: background .35s; }
+
+    /* Page header */
+    .page-title { font-size: clamp(1.6rem, 3.5vw, 2.1rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: .3rem; }
+    .page-sub   { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.5rem; transition: color .35s; }
+
+    /* ══════════════════════════════════════
+       SECTION CARDS — shared
+    ══════════════════════════════════════ */
+    .settings-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.6rem 1.8rem;
+      box-shadow: var(--shadow-card); margin-bottom: 1.2rem;
+      transition: background .35s, border-color .35s;
+    }
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: .25rem; }
+    .section-sub   { font-size: .83rem; color: var(--text-muted); transition: color .35s; }
+
+    /* Field */
+    .field-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-label);
+      margin-bottom: .35rem; display: block; transition: color .35s;
+    }
+    .field-value {
+      width: 100%; background: var(--bg-field);
+      border: 1px solid var(--border-field); border-radius: 8px;
+      padding: .65rem .95rem; font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; color: var(--text); outline: none;
+      transition: border-color .2s, background .35s, color .35s;
+    }
+    .field-value:focus { border-color: var(--green); }
+    textarea.field-value { resize: none; height: 72px; }
+
+    /* Save changes btn */
+    .btn-save {
+      background: var(--green); color: #fff;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: .87rem;
+      border: none; border-radius: 50px; padding: .55rem 1.4rem;
+      cursor: pointer; transition: opacity .2s, transform .15s;
+    }
+    .btn-save:hover { opacity: .88; transform: translateY(-1px); }
+
+    /* ── PERSONAL INFO ROW ── */
+    .personal-row { display: grid; grid-template-columns: 1fr 280px; gap: 1.2rem; margin-bottom: 1.2rem; align-items: start; }
+
+    /* Profile card */
+    .profile-card {
+      background: var(--profile-card-bg); border-radius: 16px; padding: 1.5rem;
+      box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+      height: 100%;
+    }
+    .profile-card::before {
+      content: ''; position: absolute; right: -20px; top: -20px;
+      width: 110px; height: 110px; border-radius: 50%;
+      background: rgba(255,255,255,0.05); pointer-events: none;
+    }
+    .profile-avatar {
+      width: 68px; height: 68px; border-radius: 14px; overflow: hidden;
+      background: rgba(255,255,255,0.15); margin-bottom: 1rem;
+      border: 2px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; color: #fff;
+    }
+    .profile-name   { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: .15rem; }
+    .profile-member { font-size: .78rem; color: var(--green-accent); font-weight: 600; margin-bottom: 1rem; }
+    .profile-score-label { font-size: .65rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: .3rem; }
+    .profile-score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: .45rem; }
+    .profile-score-key { font-size: .75rem; color: rgba(255,255,255,0.6); }
+    .profile-score-val { font-family: 'Syne', sans-serif; font-size: .97rem; font-weight: 800; color: #fff; }
+    .profile-score-pct { font-size: .75rem; color: rgba(255,255,255,0.55); }
+    .profile-bar-bg   { background: var(--progress-bg); border-radius: 50px; height: 5px; }
+    .profile-bar-fill { background: var(--green-accent); border-radius: 50px; height: 5px; width: 98%; }
+
+    /* ── TAX CONFIGURATION ── */
+    .tax-config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1.2rem; }
+
+    .tax-config-text { }
+    .tax-config-sub { font-size: .83rem; color: var(--text-muted); line-height: 1.65; transition: color .35s; }
+
+    .config-box {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.2rem;
+      transition: background .35s, border-color .35s;
+    }
+    .config-box-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .7rem; }
+    .config-box-icon   { color: var(--green); font-size: .9rem; }
+    .config-box-label  { font-size: .8rem; font-weight: 700; color: var(--text-muted); transition: color .35s; }
+
+    .config-select {
+      width: 100%; background: var(--bg-field);
+      border: 1px solid var(--border-field); border-radius: 8px;
+      padding: .55rem .9rem; font-family: 'DM Sans', sans-serif;
+      font-size: .87rem; color: var(--text); outline: none; cursor: pointer;
+      transition: border-color .2s, background .35s, color .35s;
+    }
+    .config-select:focus { border-color: var(--green); }
+
+    /* VAT toggle box */
+    .vat-toggle-row { display: flex; align-items: center; justify-content: space-between; }
+    .vat-label { font-size: .87rem; color: var(--text-muted); transition: color .35s; }
+    .toggle-switch {
+      width: 42px; height: 24px; border-radius: 50px;
+      background: var(--vat-on-bg); position: relative; cursor: pointer;
+      transition: background .3s; flex-shrink: 0;
+    }
+    .toggle-switch::after {
+      content: ''; position: absolute; top: 3px; right: 3px;
+      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      transition: right .3s;
+    }
+    .toggle-switch.off { background: var(--2fa-off-bg); }
+    .toggle-switch.off::after { right: auto; left: 3px; }
+
+    /* ── CONNECTED ACCOUNTS + SECURITY ── */
+    .accounts-security-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+
+    /* Connect bank button */
+    .btn-connect-bank {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--green-dim); border: 1px solid var(--green-mid);
+      border-radius: 50px; padding: .42rem 1rem;
+      font-family: 'Syne', sans-serif; font-size: .8rem; font-weight: 700;
+      color: var(--green); cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-connect-bank:hover { background: var(--green-mid); }
+
+    .connected-accounts-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.1rem; flex-wrap: wrap; gap: .5rem; }
+
+    .bank-account-row {
+      display: flex; align-items: center; gap: .9rem;
+      padding: .85rem 1rem; border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: .65rem;
+      transition: border-color .35s;
+    }
+    .bank-account-row:last-child { margin-bottom: 0; }
+    .bank-acc-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: var(--bg-bank-icon); display: flex; align-items: center;
+      justify-content: center; font-size: .95rem; color: var(--green);
+      flex-shrink: 0; transition: background .35s;
+    }
+    .bank-acc-info { flex: 1; min-width: 0; }
+    .bank-acc-name { font-size: .88rem; font-weight: 600; }
+    .bank-acc-sub  { font-size: .75rem; color: var(--text-muted); margin-top: .08rem; transition: color .35s; }
+    .account-badge {
+      font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: .22rem .65rem; border-radius: 50px; flex-shrink: 0;
+    }
+    .account-badge.active  { background: var(--active-badge-bg);  color: var(--active-badge-col); }
+    .account-badge.syncing { background: var(--syncing-badge-bg); color: var(--syncing-badge-col); }
+
+    /* Security & Privacy */
+    .security-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: .9rem 0; border-bottom: 1px solid var(--border);
+      transition: border-color .35s;
+    }
+    .security-item:last-of-type { border-bottom: none; }
+    .security-item-icon { font-size: 1rem; color: var(--text-muted); width: 20px; text-align: center; flex-shrink: 0; }
+    .security-item-info { flex: 1; }
+    .security-item-title { font-size: .88rem; font-weight: 600; }
+    .security-item-sub   { font-size: .75rem; color: var(--text-muted); margin-top: .06rem; transition: color .35s; }
+    .btn-update {
+      font-family: 'Syne', sans-serif; font-size: .78rem; font-weight: 700;
+      color: var(--green); background: none; border: none; cursor: pointer;
+      padding: 0; transition: opacity .2s; text-transform: uppercase; letter-spacing: .06em;
+    }
+    .btn-update:hover { opacity: .75; }
+
+    /* Delete data */
+    .btn-delete-data {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: .5rem;
+      background: var(--delete-bg); border: 1px solid var(--delete-border);
+      border-radius: 10px; padding: .75rem;
+      font-family: 'Syne', sans-serif; font-size: .87rem; font-weight: 700;
+      color: var(--delete-col); cursor: pointer; margin-top: 1rem;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-delete-data:hover { background: rgba(220,60,60,0.12); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .personal-row      { grid-template-columns: 1fr; }
+      .tax-config-grid   { grid-template-columns: 1fr 1fr; }
+      .accounts-security-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .tax-config-grid { grid-template-columns: 1fr; }
+      .content { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+  <div class="toggle-knob" id="knob">☀️</div>
+</button>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="app-shell">
+
+  <!-- ══════ SIDEBAR ══════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-wrap">
+        <div class="brand-logo-icon"><i class="bi bi-bank2"></i></div>
+        <div>
+          <a class="brand-name" href="#">Tax<span>Mate</span></a>
+          <div class="brand-sub">Financial Editorial</div>
+        </div>
+      </div>
+      <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="#"><i class="bi bi-grid-fill"></i> <span>Dashboard</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-arrow-left-right"></i> <span>Transactions</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-bar-chart-fill"></i> <span>Tax Reports</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-bank2"></i> <span>Bank Connections</span></a>
+      <a class="nav-item active" href="#"><i class="bi bi-gear-fill"></i> <span>Settings</span></a>
+    </nav>
+
+    <!-- Upgrade badge -->
+    <div class="upgrade-badge">
+      <div class="upgrade-eyebrow">Unlock full features</div>
+      <div class="upgrade-title">Upgrade to Pro</div>
+      <button class="btn-go-premium">Go Premium</button>
+    </div>
+
+    <div class="sidebar-footer">
+      <a class="sidebar-footer-link"><i class="bi bi-question-circle"></i> Help Center</a>
+      <a class="sidebar-footer-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </aside>
+
+  <!-- ══════ MAIN ══════ -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="hamburger" onclick="openSidebar()" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <!-- Tabs -->
+      <div class="topbar-tabs">
+        <a class="topbar-tab" href="#">Dashboard</a>
+        <a class="topbar-tab" href="#">Transactions</a>
+        <a class="topbar-tab active">Settings</a>
+      </div>
+
+      <div class="topbar-right">
+        <div class="topbar-icon"><i class="bi bi-bell"></i></div>
+        <div class="topbar-avatar">GN</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <h1 class="page-title">Account Settings</h1>
+      <p class="page-sub">Manage your personal data, tax preferences, and financial connections.</p>
+
+      <!-- ── PERSONAL INFORMATION ── -->
+      <div class="personal-row">
+
+        <div class="settings-card" style="margin-bottom:0;">
+          <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-4">
+            <div>
+              <div class="section-title">Personal Information</div>
+              <div class="section-sub">Update your public profile and contact details.</div>
+            </div>
+            <button class="btn-save">Save Changes</button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="field-label">Full Name</label>
+              <input type="text" class="field-value" value="Alexander Sterling"/>
+            </div>
+            <div class="col-sm-6">
+              <label class="field-label">Email Address</label>
+              <input type="email" class="field-value" value="alexander.s@designstudio.co"/>
+            </div>
+            <div class="col-sm-6">
+              <label class="field-label">Profession</label>
+              <input type="text" class="field-value" value="Independent Creative Director"/>
+            </div>
+            <div class="col-sm-6">
+              <label class="field-label">Location</label>
+              <input type="text" class="field-value" value="London, United Kingdom"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile card -->
+        <div class="profile-card">
+          <div class="profile-avatar">GN</div>
+          <div class="profile-name">Gerard Nwazk</div>
+          <div class="profile-member">Pro Member since 2022</div>
+          <div class="profile-score-label">Tax Profile Score</div>
+          <div class="profile-score-row">
+            <span class="profile-score-key">Score</span>
+            <span class="profile-score-val">98% <span class="profile-score-pct">Complete</span></span>
+          </div>
+          <div class="profile-bar-bg"><div class="profile-bar-fill"></div></div>
+        </div>
+
+      </div>
+
+      <!-- ── TAX CONFIGURATION ── -->
+      <div class="settings-card">
+        <div class="tax-config-grid">
+          <div class="tax-config-text">
+            <div class="section-title">Tax Configuration</div>
+            <p class="tax-config-sub mt-2">Adjust your fiscal year, VAT registration status, and default deduction categories. These settings impact all your automated reports.</p>
+          </div>
+
+          <div class="config-box">
+            <div class="config-box-header">
+              <i class="bi bi-file-earmark-text config-box-icon"></i>
+              <span class="config-box-label">Tax Residence</span>
+            </div>
+            <select class="config-select">
+              <option>United Kingdom (HMRC)</option>
+              <option>United States (IRS)</option>
+              <option>Nigeria (FIRS)</option>
+              <option>Germany (Finanzamt)</option>
+            </select>
+          </div>
+
+          <div class="config-box">
+            <div class="config-box-header">
+              <i class="bi bi-percent config-box-icon"></i>
+              <span class="config-box-label">VAT Status</span>
+            </div>
+            <div class="vat-toggle-row">
+              <span class="vat-label">Registered for VAT</span>
+              <div class="toggle-switch" id="vatToggle" onclick="toggleVAT()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONNECTED ACCOUNTS + SECURITY ── -->
+      <div class="accounts-security-row">
+
+        <!-- Connected Accounts -->
+        <div class="settings-card" style="margin-bottom:0;">
+          <div class="connected-accounts-header">
+            <div>
+              <div class="section-title">Connected Accounts</div>
+              <div class="section-sub">Manage your real-time bank feeds and sync history.</div>
+            </div>
+            <button class="btn-connect-bank"><i class="bi bi-plus"></i> Connect Bank</button>
+          </div>
+
+          <div class="bank-account-row">
+            <div class="bank-acc-icon"><i class="bi bi-bank2"></i></div>
+            <div class="bank-acc-info">
+              <div class="bank-acc-name">United Bank of Africa</div>
+              <div class="bank-acc-sub">Last synced 2 hours ago</div>
+            </div>
+            <div class="account-badge active">Active</div>
+          </div>
+
+          <div class="bank-account-row">
+            <div class="bank-acc-icon"><i class="bi bi-bank2"></i></div>
+            <div class="bank-acc-info">
+              <div class="bank-acc-name">First Bank</div>
+              <div class="bank-acc-sub">Syncing 34 transactions...</div>
+            </div>
+            <div class="account-badge syncing">Syncing</div>
+          </div>
+        </div>
+
+        <!-- Security & Privacy -->
+        <div class="settings-card" style="margin-bottom:0;">
+          <div class="section-title mb-3">Security &amp; Privacy</div>
+
+          <div class="security-item">
+            <i class="bi bi-fingerprint security-item-icon"></i>
+            <div class="security-item-info">
+              <div class="security-item-title">Two-Factor Auth</div>
+              <div class="security-item-sub">Enable for maximum security</div>
+            </div>
+            <div class="toggle-switch off" id="twoFAToggle" onclick="toggleTwoFA()"></div>
+          </div>
+
+          <div class="security-item">
+            <i class="bi bi-lock-fill security-item-icon"></i>
+            <div class="security-item-info">
+              <div class="security-item-title">Change Password</div>
+              <div class="security-item-sub">Update your access keys</div>
+            </div>
+            <button class="btn-update">Update</button>
+          </div>
+
+          <button class="btn-delete-data">
+            <i class="bi bi-trash3-fill"></i> Delete Data Archive
+          </button>
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<script>
+  /* ── Theme ── */
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const knob   = document.getElementById('knob');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    knob.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  /* ── Sidebar ── */
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  /* ── VAT toggle ── */
+  function toggleVAT() {
+    document.getElementById('vatToggle').classList.toggle('off');
+  }
+
+  /* ── 2FA toggle ── */
+  function toggleTwoFA() {
+    document.getElementById('twoFAToggle').classList.toggle('off');
+  }
+
+  /* ── Topbar tab switch ── */
+  document.querySelectorAll('.topbar-tab').forEach(t => {
+    t.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.topbar-tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

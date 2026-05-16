@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaxMate – Master Your Taxes With Absolute Clarity</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    /* ─── DARK THEME (default) ─── */
+    [data-theme="dark"] {
+      --green:       #00c46a;
+      --green-dark:  #009e56;
+      --green-glow:  rgba(0,196,106,0.18);
+      --bg-dark:     #0a0f0d;
+      --bg-card:     #111816;
+      --bg-card2:    #141c18;
+      --text-main:   #f0f5f2;
+      --text-muted:  #8fa89a;
+      --border:      rgba(0,196,106,0.12);
+      --nav-bg:      rgba(10,15,13,0.85);
+      --mockup-bg:   linear-gradient(135deg,#0e1a15 0%,#131f18 100%);
+      --mockup-chart-bg: linear-gradient(180deg,#0d1a14 0%,#091108 100%);
+      --testi-bg:    linear-gradient(145deg,#0e1c14,#071008);
+      --testi-scan:  linear-gradient(180deg,transparent 30%,rgba(0,0,0,0.7) 100%),
+                     repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,196,106,0.02) 2px,rgba(0,196,106,0.02) 4px);
+      --cta-bg:      var(--bg-card);
+      --cta-card-bg: linear-gradient(135deg,#0e2018 0%,#081410 100%);
+      --footer-bg:   var(--bg-dark);
+      --feat-dark:   linear-gradient(145deg,#0d2218,#0a1a12);
+      --stats-card:  linear-gradient(145deg,#0d2218,#091508);
+      --int-icon-bg: rgba(255,255,255,0.05);
+      --int-icon-br: rgba(255,255,255,0.08);
+      --shadow-box:  rgba(0,0,0,0.6);
+    }
+
+    /* ─── LIGHT THEME ─── */
+    [data-theme="light"] {
+      --green:       #009e56;
+      --green-dark:  #007a40;
+      --green-glow:  rgba(0,158,86,0.15);
+      --bg-dark:     #f2f7f4;
+      --bg-card:     #e8f0eb;
+      --bg-card2:    #ffffff;
+      --text-main:   #0c1a10;
+      --text-muted:  #4f7060;
+      --border:      rgba(0,158,86,0.15);
+      --nav-bg:      rgba(242,247,244,0.92);
+      --mockup-bg:   linear-gradient(135deg,#d4eddf 0%,#c1e4d0 100%);
+      --mockup-chart-bg: linear-gradient(180deg,#c8e8d5 0%,#b0d9c2 100%);
+      --testi-bg:    linear-gradient(145deg,#cce8d8,#b5ddc6);
+      --testi-scan:  linear-gradient(180deg,transparent 30%,rgba(255,255,255,0.5) 100%);
+      --cta-bg:      #e8f0eb;
+      --cta-card-bg: linear-gradient(135deg,#0e2018 0%,#081410 100%);
+      --footer-bg:   #f2f7f4;
+      --feat-dark:   linear-gradient(145deg,#c8e8d5,#b0d9c2);
+      --stats-card:  linear-gradient(145deg,#c0e2ce,#a8d4bc);
+      --int-icon-bg: rgba(0,0,0,0.04);
+      --int-icon-br: rgba(0,0,0,0.08);
+      --shadow-box:  rgba(0,0,0,0.12);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow-x: hidden;
+      transition: background .35s, color .35s;
+    }
+
+    h1, h2, h3, h4, .display-font { font-family: 'Syne', sans-serif; }
+
+    /* ─── TOGGLE BUTTON ─── */
+    .theme-toggle {
+      position: fixed;
+      top: 1.05rem;
+      right: 1.3rem;
+      z-index: 99999;
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      width: 56px; height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 3px 4px;
+      transition: background .35s, border-color .35s;
+      box-shadow: 0 2px 12px var(--shadow-box);
+    }
+    .toggle-knob {
+      width: 24px; height: 24px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem;
+      line-height: 1;
+      transition: transform .35s;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"]  .toggle-knob { transform: translateX(0); }
+    [data-theme="light"] .toggle-knob { transform: translateX(26px); }
+
+    /* ─── NAVBAR ─── */
+    .navbar-custom {
+      background: var(--nav-bg);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      transition: background .35s, border-color .35s;
+    }
+    .navbar-brand span { color: var(--green); }
+    .nav-link { color: var(--text-muted) !important; font-size: .9rem; transition: color .2s; }
+    .nav-link:hover { color: var(--green) !important; }
+    .btn-nav {
+      background: var(--green);
+      color: #fff !important;
+      font-weight: 700;
+      border-radius: 50px;
+      padding: .45rem 1.3rem;
+      font-size: .88rem;
+      transition: background .2s, transform .15s;
+      text-decoration: none;
+    }
+    .btn-nav:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+    /* ─── HERO ─── */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 7rem 0 4rem;
+      position: relative;
+      overflow: hidden;
+      transition: background .35s;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 65% 50%, rgba(0,196,106,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 10% 80%, rgba(0,196,106,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .tag-pill {
+      display: inline-block;
+      background: rgba(0,196,106,0.1);
+      border: 1px solid rgba(0,196,106,0.3);
+      color: var(--green);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      border-radius: 50px;
+      padding: .3rem .9rem;
+      margin-bottom: 1.5rem;
+      transition: color .35s;
+    }
+    .hero-title {
+      font-size: clamp(2.6rem, 6vw, 4.4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+    }
+    .hero-title .accent { color: var(--green); }
+    .hero-sub { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; max-width: 480px; transition: color .35s; }
+
+    .btn-primary-custom {
+      background: var(--green);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      border-radius: 50px;
+      padding: .75rem 1.8rem;
+      border: none;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      text-decoration: none;
+    }
+    .btn-primary-custom:hover {
+      background: var(--green-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,196,106,0.35);
+      color: #fff;
+    }
+    .btn-outline-custom {
+      background: transparent;
+      color: var(--text-main);
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: .95rem;
+      border-radius: 50px;
+      padding: .73rem 1.8rem;
+      border: 1px solid rgba(240,245,242,0.2);
+      transition: border-color .2s, color .2s, transform .15s;
+      text-decoration: none;
+    }
+    [data-theme="light"] .btn-outline-custom { border-color: rgba(12,26,16,0.2); }
+    .btn-outline-custom:hover { border-color: var(--green); color: var(--green); transform: translateY(-2px); }
+
+    /* Hero mockup */
+    .hero-mockup-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
+    .mockup-card {
+      background: var(--mockup-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 30px 80px var(--shadow-box), 0 0 60px rgba(0,196,106,0.07);
+      animation: floatCard 4s ease-in-out infinite;
+      transition: background .35s, border-color .35s;
+    }
+    @keyframes floatCard { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .mockup-chart-area {
+      background: var(--mockup-chart-bg);
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+      transition: background .35s;
+    }
+    .chart-svg { width: 100%; height: 100%; }
+    .mockup-footer {
+      padding: 1rem 1.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      transition: border-color .35s;
+    }
+    .savings-label { font-size: .72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .1em; transition: color .35s; }
+    .savings-amount { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; }
+    .savings-badge {
+      background: rgba(0,196,106,0.15);
+      border: 1px solid rgba(0,196,106,0.3);
+      color: var(--green);
+      border-radius: 50px;
+      padding: .35rem .7rem;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+
+    .glow-dot {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--green);
+      filter: blur(60px);
+      opacity: .08;
+      pointer-events: none;
+    }
+
+    /* ─── FEATURES ─── */
+    .features-section {
+      padding: 6rem 0;
+      background: var(--bg-card);
+      transition: background .35s;
+    }
+    .section-label { font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--green); margin-bottom: .8rem; transition: color .35s; }
+    .section-title { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; line-height: 1.1; letter-spacing: -.02em; }
+    .section-sub { color: var(--text-muted); font-size: 1rem; max-width: 500px; transition: color .35s; }
+
+    .feature-card {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 2rem;
+      height: 100%;
+      transition: border-color .25s, transform .25s, box-shadow .25s, background .35s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+    .feature-card:hover { border-color: rgba(0,196,106,0.35); transform: translateY(-4px); box-shadow: 0 16px 48px var(--shadow-box), 0 0 30px rgba(0,196,106,0.07); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card.featured { background: var(--feat-dark); border-color: rgba(0,196,106,0.35); }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      background: rgba(0,196,106,0.12);
+      border: 1px solid rgba(0,196,106,0.2);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      color: var(--green);
+      margin-bottom: 1.2rem;
+    }
+    .feature-card h4 { font-size: 1.15rem; font-weight: 700; margin-bottom: .6rem; }
+    .feature-card p { color: var(--text-muted); font-size: .92rem; line-height: 1.65; margin: 0; transition: color .35s; }
+    .learn-more { display: inline-flex; align-items: center; gap: .3rem; color: var(--green); font-size: .85rem; font-weight: 600; text-decoration: none; margin-top: 1rem; transition: gap .2s; }
+    .learn-more:hover { gap: .55rem; color: var(--green); }
+
+    .int-icons { display: flex; gap: .6rem; margin-top: 1rem; }
+    .int-icon {
+      width: 38px; height: 38px;
+      background: var(--int-icon-bg);
+      border: 1px solid var(--int-icon-br);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      color: var(--text-muted);
+      transition: background .35s, border-color .35s, color .35s;
+    }
+
+    /* ─── TESTIMONIAL ─── */
+    .testimonial-section {
+      padding: 6rem 0;
+      background: var(--bg-dark);
+      position: relative;
+      overflow: hidden;
+      transition: background .35s;
+    }
+    .testimonial-section::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      left: -200px; top: 50%;
+      transform: translateY(-50%);
+      background: radial-gradient(circle, rgba(0,196,106,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .testimonial-img-placeholder {
+      background: var(--testi-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+      transition: background .35s, border-color .35s;
+    }
+    .testimonial-img-bg {
+      position: absolute;
+      inset: 0;
+      background: var(--testi-scan);
+      transition: background .35s;
+    }
+    .success-label { position: relative; z-index: 1; text-align: center; }
+    .success-label .big { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: .05em; }
+    .success-label .sub { font-size: .8rem; color: var(--text-muted); letter-spacing: .12em; text-transform: uppercase; transition: color .35s; }
+
+    .quote-mark { font-family: 'Syne', sans-serif; font-size: 4rem; font-weight: 800; color: var(--green); line-height: 1; margin-bottom: .5rem; }
+    .quote-text { font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 600; line-height: 1.4; margin-bottom: 1.5rem; font-family: 'Syne', sans-serif; }
+    .quote-author { display: flex; align-items: center; gap: .9rem; margin-bottom: 1.5rem; }
+    .author-avatar {
+      width: 40px; height: 40px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: .85rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .author-name { font-weight: 700; font-size: .95rem; }
+    .author-role { font-size: .78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; transition: color .35s; }
+
+    .press-logos { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+    .press-logo { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .8rem; letter-spacing: .12em; color: var(--text-muted); text-transform: uppercase; opacity: .6; transition: opacity .2s, color .2s; }
+    .press-logo:hover { opacity: 1; color: var(--green); }
+
+    /* ─── CTA ─── */
+    .cta-section {
+      padding: 7rem 0;
+      background: var(--cta-bg);
+      position: relative;
+      overflow: hidden;
+      transition: background .35s;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      width: 800px; height: 400px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(ellipse, rgba(0,196,106,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-card {
+      background: var(--cta-card-bg);
+      border: 1px solid rgba(0,196,106,0.2);
+      border-radius: 24px;
+      padding: 4rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: background .35s;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 60%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+    }
+    .cta-title { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.1; margin-bottom: .8rem; color: #f0f5f2; }
+    .cta-sub { color: rgba(240,245,242,0.6); font-size: 1rem; margin-bottom: 2rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+
+    .cta-card .btn-outline-custom { color: #f0f5f2; border-color: rgba(240,245,242,0.2); }
+    .cta-card .btn-outline-custom:hover { border-color: var(--green); color: var(--green); }
+
+    .stat-row { display: flex; justify-content: center; gap: 2.5rem; margin-top: 2.5rem; flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--green); display: block; }
+    .stat-label { font-size: .78rem; color: rgba(240,245,242,0.5); letter-spacing: .08em; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--footer-bg);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 0;
+      text-align: center;
+      transition: background .35s, border-color .35s;
+    }
+    footer .brand { font-family: 'Syne', sans-serif; font-weight: 800; }
+    footer .brand span { color: var(--green); }
+    footer p { color: var(--text-muted); font-size: .85rem; margin-top: .5rem; margin-bottom: 0; transition: color .35s; }
+
+    /* ─── ANIMATIONS ─── */
+    .fade-up { opacity: 0; transform: translateY(24px); animation: fadeUp .7s ease forwards; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    .delay-1 { animation-delay: .1s; }
+    .delay-2 { animation-delay: .2s; }
+    .delay-3 { animation-delay: .3s; }
+    .delay-4 { animation-delay: .4s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 991px) {
+      .hero-section { padding: 6rem 0 3rem; }
+      .hero-mockup-wrap { margin-top: 3rem; }
+    }
+    @media (max-width: 767px) {
+      .cta-card { padding: 2.5rem 1.5rem; }
+      .stat-row { gap: 1.5rem; }
+      .press-logos { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+  <div class="toggle-knob" id="knob">🌙</div>
+</button>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+  <div class="container">
+    <a class="navbar-brand fw-800" href="#" style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;">
+      Tax<span>Mate</span>
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" style="color:var(--text-muted);">
+      <i class="bi bi-list fs-4"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav mx-auto gap-lg-1">
+        <li class="nav-item"><a class="nav-link px-3" href="#">Features</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="#">Pricing</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="#">Blog</a></li>
+        <li class="nav-item"><a class="nav-link px-3" href="#">About</a></li>
+      </ul>
+      <div class="d-flex gap-2 mt-3 mt-lg-0">
+        <a href="#" class="nav-link px-3 py-2" style="color:var(--text-muted)!important;">Sign In</a>
+        <a href="#" class="btn btn-nav">Get Started Free</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div class="glow-dot" style="width:500px;height:500px;right:-100px;top:-100px;"></div>
+  <div class="container">
+    <div class="row align-items-center g-5">
+
+      <div class="col-lg-6">
+        <div class="tag-pill fade-up">Financial Intelligence</div>
+        <h1 class="hero-title fade-up delay-1">
+          Master Your Taxes<br>
+          <span class="accent">With Absolute<br>Clarity.</span>
+        </h1>
+        <p class="hero-sub mt-3 mb-4 fade-up delay-2">
+          Designed for the modern professional. TaxMate transforms complex financial data into actionable editorial insights, ensuring every deduction is captured and every cent optimized.
+        </p>
+        <div class="d-flex flex-wrap gap-3 fade-up delay-3">
+          <a href="#" class="btn-primary-custom">Start Optimizing Now <i class="bi bi-arrow-right"></i></a>
+          <a href="#" class="btn-outline-custom">View Demo</a>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="hero-mockup-wrap fade-up delay-2">
+          <div class="mockup-card">
+            <div class="mockup-chart-area">
+              <svg class="chart-svg" viewBox="0 0 480 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#00c46a" stop-opacity=".3"/>
+                    <stop offset="100%" stop-color="#00c46a" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="50" x2="480" y2="50" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <line x1="0" y1="100" x2="480" y2="100" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <line x1="0" y1="150" x2="480" y2="150" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <path d="M0,160 C40,155 80,130 120,110 C160,90 200,140 240,95 C280,50 320,75 360,45 C400,18 440,30 480,15 L480,200 L0,200 Z" fill="url(#chartGrad)"/>
+                <path d="M0,160 C40,155 80,130 120,110 C160,90 200,140 240,95 C280,50 320,75 360,45 C400,18 440,30 480,15" fill="none" stroke="#00c46a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="480" cy="15" r="5" fill="#00c46a"/>
+                <circle cx="480" cy="15" r="9" fill="rgba(0,196,106,0.2)"/>
+              </svg>
+            </div>
+            <div class="mockup-footer">
+              <div>
+                <div class="savings-label">Tax Savings</div>
+                <div class="savings-amount">₦260,000</div>
+              </div>
+              <div class="savings-badge"><i class="bi bi-graph-up-arrow me-1"></i>+18.4%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="section-label">Core Features</div>
+      <h2 class="section-title">Precision Engineering<br>for Your Portfolio.</h2>
+      <p class="section-sub mx-auto mt-3">Sophisticated tools shouldn't be complicated. We've refined the tax filing experience into a seamless, high-performance workflow.</p>
+    </div>
+
+    <div class="row g-4">
+
+      <div class="col-lg-6">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-cpu-fill"></i></div>
+          <h4>AI-Powered Deduction Discovery</h4>
+          <p>Our proprietary algorithms scan your transactions to identify missed opportunities, ensuring you never overpay again. Every pattern, every edge case — caught automatically.</p>
+          <a href="#" class="learn-more">Learn More <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="feature-card featured h-100">
+          <div class="feature-icon" style="background:rgba(0,196,106,0.2);border-color:rgba(0,196,106,0.4);">
+            <i class="bi bi-shield-fill-check"></i>
+          </div>
+          <h4>Audit Protection Pro</h4>
+          <p>Peace of mind comes standard. We stand behind every calculation with comprehensive audit support. Our experts are on call should the taxman come knocking.</p>
+          <div class="mt-3 d-flex align-items-center gap-2">
+            <span style="width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;box-shadow:0 0 8px rgba(0,196,106,0.6);"></span>
+            <span style="font-size:.82rem;color:var(--text-muted);">Active Protection Enabled</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
+          <h4>Real-time Analytics</h4>
+          <p>Track your tax liability throughout the year, not just in April. Live dashboards keep you one step ahead.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-5">
+        <div class="feature-card h-100">
+          <div class="feature-icon"><i class="bi bi-plug-fill"></i></div>
+          <h4>Seamless Integration</h4>
+          <p>Connect to over 5,000 financial institutions instantly. Automated data retrieval means zero manual entry errors.</p>
+          <div class="int-icons">
+            <div class="int-icon"><i class="bi bi-bank2"></i></div>
+            <div class="int-icon"><i class="bi bi-credit-card-fill"></i></div>
+            <div class="int-icon"><i class="bi bi-phone-fill"></i></div>
+            <div class="int-icon"><i class="bi bi-globe2"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3">
+        <div class="feature-card h-100 d-flex flex-column justify-content-center text-center" style="background:var(--stats-card);transition:background .35s;">
+          <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--green);line-height:1;">5k+</div>
+          <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.3rem;">Institutions</div>
+          <div style="width:40px;height:2px;background:var(--green);margin:.8rem auto;opacity:.4;"></div>
+          <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--green);line-height:1;">99%</div>
+          <div style="font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.3rem;">Accuracy</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testimonial-section">
+  <div class="container">
+    <div class="row align-items-center g-5">
+
+      <div class="col-lg-5">
+        <div class="testimonial-img-placeholder">
+          <div class="testimonial-img-bg"></div>
+          <svg viewBox="0 0 160 260" width="140" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);opacity:.18;" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="80" cy="55" rx="38" ry="42" fill="#00c46a"/>
+            <path d="M10 260 C10 180 150 180 150 260" fill="#00c46a"/>
+          </svg>
+          <div class="success-label">
+            <div class="big">CUSTOMER SUCCESS</div>
+            <div class="sub">Story</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">TaxMate didn't just save me money; it gave me back my Sundays. The editorial clarity of the dashboard is unlike any financial tool I've used.</p>
+        <div class="quote-author">
+          <div class="author-avatar">SH</div>
+          <div>
+            <div class="author-name">Sarah Henderson</div>
+            <div class="author-role">Founder, Creative Pulse</div>
+          </div>
+        </div>
+        <div class="press-logos">
+          <span class="press-logo">Forbes</span>
+          <span style="color:var(--border);">·</span>
+          <span class="press-logo">TechCrunch</span>
+          <span style="color:var(--border);">·</span>
+          <span class="press-logo">Wired</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card">
+      <div class="section-label">Get Started Today</div>
+      <h2 class="cta-title">Ready to elevate your<br><span style="color:var(--green);">financial narrative?</span></h2>
+      <p class="cta-sub">Join over 50,000 professionals who have optimized their tax strategy with TaxMate's editorial intelligence.</p>
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <a href="#" class="btn-primary-custom">Get Started Free <i class="bi bi-arrow-right"></i></a>
+        <a href="#" class="btn-outline-custom" style="color:#f0f5f2;border-color:rgba(240,245,242,0.2);">Talk to an Expert</a>
+      </div>
+      <div class="stat-row">
+        <div class="stat-item">
+          <span class="stat-num">50k+</span>
+          <span class="stat-label">Professionals</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">₦2B+</span>
+          <span class="stat-label">Taxes Saved</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">4.9★</span>
+          <span class="stat-label">Average Rating</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="brand">Tax<span>Mate</span></div>
+    <p>© 2026 TaxMate. All rights reserved. Built for the modern professional.</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleTheme() {
+    const html  = document.documentElement;
+    const knob  = document.getElementById('knob');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    knob.textContent = isDark ? '☀️' : '🌙';
+  }
+</script>
+</body>
+</html>

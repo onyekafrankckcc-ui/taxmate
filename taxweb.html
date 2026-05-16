@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaxMate – Transactions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+
+    /* ══════════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════════ */
+    [data-theme="light"] {
+      --bg:             #f2f5f3;
+      --bg-sidebar:     #ffffff;
+      --bg-topbar:      rgba(255,255,255,0.95);
+      --bg-card:        #ffffff;
+      --bg-input:       #f0f4f1;
+      --bg-tag:         #eef3ef;
+      --bg-tx-icon:     #f0f4f1;
+      --bg-overlay:     rgba(0,0,0,0.45);
+      --bg-export:      #f8fbf9;
+      --text:           #0c1a10;
+      --text-muted:     #5a7060;
+      --text-label:     #8a9e8e;
+      --border:         #e4ebe6;
+      --border-sidebar: #edf2ee;
+      --green:          #1a7a3c;
+      --green-btn:      #1a7a3c;
+      --green-light:    #00c46a;
+      --green-dim:      rgba(0,196,106,0.10);
+      --green-mid:      rgba(0,196,106,0.22);
+      --shadow:         0 2px 16px rgba(0,0,0,0.07);
+      --shadow-card:    0 1px 8px rgba(0,0,0,0.06);
+      --toggle-track:   #d4e8da;
+      --nav-active-bg:  rgba(0,196,106,0.08);
+      --nav-active-bar: #1a7a3c;
+      --net-card-bg:    linear-gradient(135deg,#eaf6ef 0%,#d8f0e4 100%);
+      --tax-card-bg:    linear-gradient(135deg,#1a7a3c 0%,#0d5a28 100%);
+      --income-col:     #1a7a3c;
+      --expense-col:    #e05252;
+      --pending-col:    #e09520;
+      --success-dot:    #1a7a3c;
+      --pending-dot:    #e09520;
+      --pill-border:    #e4ebe6;
+      --pill-active-bg: #1a7a3c;
+      --pill-active-tx: #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg:             #0a0f0d;
+      --bg-sidebar:     #0e1510;
+      --bg-topbar:      rgba(14,21,16,0.95);
+      --bg-card:        #111816;
+      --bg-input:       #0e1510;
+      --bg-tag:         #1a2a1e;
+      --bg-tx-icon:     #1a2218;
+      --bg-overlay:     rgba(0,0,0,0.65);
+      --bg-export:      #111816;
+      --text:           #f0f5f2;
+      --text-muted:     #8fa89a;
+      --text-label:     #6a8a78;
+      --border:         rgba(255,255,255,0.07);
+      --border-sidebar: rgba(255,255,255,0.06);
+      --green:          #00c46a;
+      --green-btn:      #00c46a;
+      --green-light:    #00c46a;
+      --green-dim:      rgba(0,196,106,0.10);
+      --green-mid:      rgba(0,196,106,0.22);
+      --shadow:         0 2px 24px rgba(0,0,0,0.4);
+      --shadow-card:    0 1px 12px rgba(0,0,0,0.35);
+      --toggle-track:   #1e2922;
+      --nav-active-bg:  rgba(0,196,106,0.10);
+      --nav-active-bar: #00c46a;
+      --net-card-bg:    linear-gradient(135deg,#0d2016 0%,#0a1a10 100%);
+      --tax-card-bg:    linear-gradient(135deg,#0d5a28 0%,#083d1a 100%);
+      --income-col:     #00c46a;
+      --expense-col:    #f07070;
+      --pending-col:    #f0b040;
+      --success-dot:    #00c46a;
+      --pending-dot:    #f0b040;
+      --pill-border:    rgba(255,255,255,0.1);
+      --pill-active-bg: #00c46a;
+      --pill-active-tx: #0a0f0d;
+    }
+
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); transition: background .35s, color .35s; overflow: hidden; }
+    h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+    /* ══════════════════════════════════════
+       THEME TOGGLE
+    ══════════════════════════════════════ */
+    .theme-toggle {
+      position: fixed; top: 3.05rem; right: 0.2rem; z-index: 99999;
+      background: var(--toggle-track); border: 1px solid var(--border);
+      border-radius: 50px; width: 54px; height: 28px;
+      cursor: pointer; display: flex; align-items: center; padding: 3px 4px;
+      transition: background .35s, border-color .35s; box-shadow: var(--shadow);
+    }
+    .toggle-knob {
+      width: 22px; height: 22px; background: var(--green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; line-height: 1; transition: transform .35s; flex-shrink: 0;
+    }
+    [data-theme="light"] .toggle-knob { transform: translateX(0); }
+    [data-theme="dark"]  .toggle-knob { transform: translateX(24px); }
+
+    /* ══════════════════════════════════════
+       APP SHELL
+    ══════════════════════════════════════ */
+    .app-shell { display: flex; height: 100vh; overflow: hidden; position: relative; }
+
+    /* ══════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════ */
+    .sidebar {
+      width: 210px; flex-shrink: 0;
+      background: var(--bg-sidebar); border-right: 1px solid var(--border-sidebar);
+      display: flex; flex-direction: column;
+      transition: background .35s, border-color .35s, transform .3s;
+      z-index: 200; height: 100%;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 32px rgba(0,0,0,0.2);
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: var(--bg-overlay); z-index: 190;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    /* Brand */
+    .sidebar-brand {
+      padding: 1.3rem 1.3rem 1.1rem;
+      border-bottom: 1px solid var(--border-sidebar);
+      transition: border-color .35s;
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .brand-name {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.15rem;
+      color: var(--text); text-decoration: none; display: block; transition: color .35s;
+    }
+    .brand-name span { color: var(--green); }
+    .brand-sub {
+      font-size: .6rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-label);
+      margin-top: .15rem; transition: color .35s;
+    }
+    .sidebar-close {
+      display: none; background: none; border: none;
+      color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: .1rem;
+    }
+    @media (max-width: 900px) { .sidebar-close { display: block; } }
+
+    /* Nav */
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1.3rem; font-size: .9rem; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color .2s, background .2s, border-color .2s; cursor: pointer;
+    }
+    .nav-item:hover { color: var(--text); background: var(--nav-active-bg); }
+    .nav-item.active {
+      color: var(--green); font-weight: 700;
+      background: var(--nav-active-bg); border-left-color: var(--nav-active-bar);
+    }
+    .nav-item i { font-size: 1rem; width: 18px; text-align: center; }
+
+    /* Footer */
+    .sidebar-footer {
+      padding: 1rem 1.1rem; border-top: 1px solid var(--border-sidebar);
+      transition: border-color .35s;
+    }
+    .user-row { display: flex; align-items: center; gap: .75rem; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%; background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .72rem;
+      color: #fff; flex-shrink: 0;
+    }
+    .user-name  { font-size: .87rem; font-weight: 700; }
+    .user-plan  { font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .07em; transition: color .35s; }
+
+    /* ══════════════════════════════════════
+       MAIN AREA
+    ══════════════════════════════════════ */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--bg-topbar); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: .65rem 1.4rem; display: flex; align-items: center; gap: .9rem;
+      transition: background .35s, border-color .35s; flex-shrink: 0;
+    }
+
+    /* Hamburger – only on mobile */
+    .hamburger {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: 8px; padding: .32rem .5rem; cursor: pointer;
+      color: var(--text-muted); font-size: 1.1rem;
+      transition: border-color .35s, color .2s; flex-shrink: 0;
+      align-items: center;
+    }
+    .hamburger:hover { color: var(--text); border-color: var(--green); }
+    @media (max-width: 900px) { .hamburger { display: flex; } }
+
+    .search-wrap {
+      flex: 1; max-width: 460px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: 50px; padding: .44rem 1rem;
+      display: flex; align-items: center; gap: .5rem;
+      transition: background .35s, border-color .35s;
+    }
+    .search-wrap i { color: var(--text-muted); font-size: .9rem; }
+    .search-wrap input {
+      background: none; border: none; outline: none;
+      font-family: 'DM Sans', sans-serif; font-size: .87rem; color: var(--text); width: 100%;
+    }
+    .search-wrap input::placeholder { color: var(--text-label); }
+
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+    .topbar-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: .95rem; cursor: pointer;
+      transition: background .2s, color .2s; position: relative;
+    }
+    .topbar-icon:hover { background: var(--bg-input); color: var(--text); }
+    .notif-dot {
+      position: absolute; top: 4px; right: 4px; width: 7px; height: 7px;
+      border-radius: 50%; background: var(--expense-col); border: 1.5px solid var(--bg-topbar);
+    }
+    .btn-support {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: .82rem;
+      color: var(--text); background: none; border: none; cursor: pointer;
+      transition: color .2s; padding: .2rem .4rem;
+    }
+    .btn-support:hover { color: var(--green); }
+    .topbar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .68rem;
+      color: #fff; flex-shrink: 0; cursor: pointer;
+    }
+
+    /* ══════════════════════════════════════
+       CONTENT
+    ══════════════════════════════════════ */
+    .content { flex: 1; overflow-y: auto; padding: 1.5rem 1.4rem 2rem; transition: background .35s; }
+
+    /* ── SUMMARY ROW ── */
+    .summary-row {
+      display: grid; grid-template-columns: 1fr 270px;
+      gap: 1rem; margin-bottom: 1.2rem;
+    }
+
+    /* Net income card */
+    .net-card {
+      background: var(--net-card-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.6rem 1.8rem;
+      box-shadow: var(--shadow-card); transition: background .35s, border-color .35s;
+    }
+    .net-label {
+      font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--text-label); margin-bottom: .5rem; transition: color .35s;
+    }
+    .net-amount {
+      font-family: 'Syne', sans-serif; font-size: clamp(1.9rem, 4vw, 2.8rem);
+      font-weight: 800; letter-spacing: -.02em; margin-bottom: .9rem;
+      display: flex; align-items: center; gap: .55rem;
+    }
+    .net-bars { display: flex; gap: 3px; align-items: flex-end; height: 28px; }
+    .net-bar  { border-radius: 2px; background: var(--green); width: 5px; opacity: .7; }
+
+    .net-sub-row { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .net-sub-item { display: flex; align-items: center; gap: .5rem; }
+    .net-sub-icon { font-size: 1.1rem; }
+    .net-sub-label { font-size: .74rem; color: var(--text-muted); transition: color .35s; }
+    .net-sub-val   { font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; }
+
+    /* Tax provision card */
+    .tax-prov-card {
+      background: var(--tax-card-bg); border-radius: 16px; padding: 1.5rem 1.6rem;
+      box-shadow: var(--shadow-card); position: relative; overflow: hidden;
+    }
+    .tax-prov-card::before {
+      content: ''; position: absolute; right: -20px; top: -20px;
+      width: 110px; height: 110px; border-radius: 50%;
+      background: rgba(255,255,255,0.05); pointer-events: none;
+    }
+    .tax-prov-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: .65rem; }
+    .tax-prov-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,255,255,0.15); display: flex; align-items: center;
+      justify-content: center; color: #fff; font-size: .9rem;
+    }
+    .tax-prov-badge {
+      font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: #fff; background: rgba(255,255,255,0.18); border-radius: 50px; padding: .22rem .65rem;
+    }
+    .tax-prov-label  { font-size: .72rem; color: rgba(255,255,255,0.65); margin-bottom: .3rem; }
+    .tax-prov-amount { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: .8rem; }
+    .tax-prov-bar-bg   { background: rgba(255,255,255,0.18); border-radius: 50px; height: 5px; margin-bottom: .5rem; }
+    .tax-prov-bar-fill { background: rgba(255,255,255,0.75); border-radius: 50px; height: 5px; width: 15%; }
+    .tax-prov-note { font-size: .75rem; color: rgba(255,255,255,0.55); }
+
+    /* ── TRANSACTION TABLE CARD ── */
+    .table-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-card);
+      margin-bottom: 1.2rem; transition: background .35s, border-color .35s;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex; align-items: center; gap: .6rem; padding: .9rem 1.3rem;
+      border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: .5rem;
+      transition: border-color .35s;
+    }
+    .pill-group { display: flex; gap: .35rem; }
+    .pill {
+      font-family: 'Syne', sans-serif; font-size: .78rem; font-weight: 700;
+      padding: .35rem .9rem; border-radius: 50px;
+      border: 1px solid var(--pill-border); background: none;
+      color: var(--text-muted); cursor: pointer;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .pill:hover { border-color: var(--green); color: var(--green); }
+    .pill.active { background: var(--pill-active-bg); border-color: var(--pill-active-bg); color: var(--pill-active-tx); }
+
+    .filter-right { margin-left: auto; display: flex; align-items: center; gap: .45rem; flex-wrap: wrap; }
+    .btn-filter, .btn-month {
+      display: flex; align-items: center; gap: .4rem;
+      font-family: 'DM Sans', sans-serif; font-size: .81rem; font-weight: 500;
+      padding: .36rem .82rem; border-radius: 50px;
+      border: 1px solid var(--border); background: none; color: var(--text-muted);
+      cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .btn-filter:hover, .btn-month:hover { border-color: var(--green); color: var(--green); }
+    .btn-new-entry {
+      display: flex; align-items: center; gap: .4rem;
+      font-family: 'Syne', sans-serif; font-size: .82rem; font-weight: 700;
+      padding: .38rem 1.1rem; border-radius: 50px;
+      background: var(--green-btn); border: none; color: #fff;
+      cursor: pointer; transition: opacity .2s, transform .15s;
+    }
+    .btn-new-entry:hover { opacity: .88; transform: translateY(-1px); }
+    @media (max-width: 520px) { .btn-new-entry .btn-label { display: none; } }
+
+    /* Table */
+    .tx-table { width: 100%; border-collapse: collapse; }
+    .tx-table thead th {
+      font-size: .67rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--text-label);
+      padding: .72rem 1.3rem; border-bottom: 1px solid var(--border);
+      text-align: left; transition: color .35s, border-color .35s; white-space: nowrap;
+    }
+    .tx-table thead th.right { text-align: right; }
+    .tx-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background .2s, border-color .35s;
+    }
+    .tx-table tbody tr:last-child { border-bottom: none; }
+    .tx-table tbody tr:hover { background: var(--bg-input); }
+    .tx-table tbody td { padding: .9rem 1.3rem; vertical-align: middle; }
+
+    .tx-date { font-size: .82rem; color: var(--text-muted); white-space: nowrap; transition: color .35s; }
+
+    .tx-desc-wrap { display: flex; align-items: center; gap: .8rem; }
+    .tx-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg-tx-icon); display: flex; align-items: center;
+      justify-content: center; font-size: .9rem; color: var(--text-muted);
+      flex-shrink: 0; transition: background .35s;
+    }
+    .tx-name { font-size: .88rem; font-weight: 600; }
+    .tx-sub  { font-size: .74rem; color: var(--text-muted); margin-top: .08rem; transition: color .35s; }
+
+    .category-tag {
+      display: inline-block; font-size: .67rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      background: var(--bg-tag); color: var(--text-muted);
+      border-radius: 50px; padding: .24rem .65rem;
+      transition: background .35s, color .35s;
+    }
+
+    .status-row { display: flex; align-items: center; gap: .4rem; font-size: .82rem; font-weight: 600; white-space: nowrap; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.success { background: var(--success-dot); }
+    .status-dot.pending { background: var(--pending-dot); }
+    .status-label.success { color: var(--success-dot); }
+    .status-label.pending { color: var(--pending-dot); }
+
+    .tx-amount { font-family: 'Syne', sans-serif; font-size: .92rem; font-weight: 700; text-align: right; white-space: nowrap; }
+    .tx-amount.credit { color: var(--income-col); }
+    .tx-amount.debit  { color: var(--text); }
+
+    /* Hide columns on small screens */
+    @media (max-width: 700px) {
+      .tx-table thead th.col-cat, .tx-table tbody td.col-cat { display: none; }
+    }
+    @media (max-width: 480px) {
+      .tx-table thead th.col-status, .tx-table tbody td.col-status { display: none; }
+    }
+
+    /* Pagination */
+    .pagination-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .8rem 1.3rem; border-top: 1px solid var(--border);
+      transition: border-color .35s; flex-wrap: wrap; gap: .5rem;
+    }
+    .page-info { font-size: .8rem; color: var(--text-muted); transition: color .35s; }
+    .page-btns { display: flex; gap: .35rem; align-items: center; }
+    .page-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
+      background: none; color: var(--text-muted); font-size: .8rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+    .page-btn:hover { border-color: var(--green); color: var(--green); }
+    .page-btn.active { background: var(--green-btn); border-color: var(--green-btn); color: #fff; }
+
+    /* ── BOTTOM ROW ── */
+    .bottom-row { display: grid; grid-template-columns: 1fr 270px; gap: 1rem; }
+
+    /* Smart deduction */
+    .deduction-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-card);
+      display: flex; gap: 1rem; align-items: flex-start;
+      transition: background .35s, border-color .35s;
+    }
+    .deduction-icon-wrap {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--green-btn); display: flex; align-items: center;
+      justify-content: center; font-size: 1.1rem; color: #fff; flex-shrink: 0;
+    }
+    .deduction-title { font-family: 'Syne', sans-serif; font-size: .97rem; font-weight: 700; margin-bottom: .5rem; color: var(--green); }
+    .deduction-body  { font-size: .84rem; color: var(--text-muted); line-height: 1.65; margin-bottom: .85rem; transition: color .35s; }
+    .deduction-action { font-size: .83rem; font-weight: 700; color: var(--green); cursor: pointer; transition: opacity .2s; }
+    .deduction-action:hover { opacity: .75; }
+
+    /* Export card */
+    .export-card {
+      background: var(--bg-export); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.4rem 1.5rem; text-align: center;
+      box-shadow: var(--shadow-card); transition: background .35s, border-color .35s;
+    }
+    .export-icon-wrap {
+      width: 50px; height: 50px; border-radius: 50%;
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--text-muted); margin: 0 auto .9rem;
+      transition: background .35s, border-color .35s;
+    }
+    .export-title { font-family: 'Syne', sans-serif; font-size: .97rem; font-weight: 700; margin-bottom: .3rem; }
+    .export-sub   { font-size: .82rem; color: var(--text-muted); margin-bottom: 1rem; transition: color .35s; }
+    .btn-export {
+      width: 100%; padding: .6rem; border-radius: 8px; font-size: .86rem; font-weight: 600;
+      cursor: pointer; margin-bottom: .5rem;
+      background: none; border: 1px solid var(--border); color: var(--text);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-export:last-child { margin-bottom: 0; }
+    .btn-export:hover { border-color: var(--green); color: var(--green); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .summary-row { grid-template-columns: 1fr; }
+      .bottom-row  { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .content { padding: 1rem; }
+      .net-sub-row { gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+  <div class="toggle-knob" id="knob">☀️</div>
+</button>
+
+<!-- Overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="app-shell">
+
+  <!-- ══════ SIDEBAR ══════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div>
+        <a class="brand-name" href="#">Tax<span>Mate</span></a>
+        <div class="brand-sub">Financial Editorial</div>
+      </div>
+      <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="#"><i class="bi bi-grid-fill"></i> <span>Dashboard</span></a>
+      <a class="nav-item active" href="#"><i class="bi bi-arrow-left-right"></i> <span>Transactions</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-bar-chart-fill"></i> <span>Tax Reports</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-file-earmark-text"></i> <span>Documents</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-bank2"></i> <span>Bank Connections</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-gear-fill"></i> <span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar">AT</div>
+        <div>
+          <div class="user-name">Alex Thompson</div>
+          <div class="user-plan">Premium Plan</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════ MAIN ══════ -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="hamburger" onclick="openSidebar()" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="search-wrap">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Search transactions, tags, or merchants..."/>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-support">Support</button>
+        <div class="topbar-icon">
+          <i class="bi bi-bell-fill"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="topbar-icon"><i class="bi bi-question-circle"></i></div>
+        <div class="topbar-avatar">AT</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- Summary Row -->
+      <div class="summary-row">
+
+        <div class="net-card">
+          <div class="net-label">Monthly Net Income</div>
+          <div class="net-amount">
+            <div class="net-bars">
+              <div class="net-bar" style="height:10px;"></div>
+              <div class="net-bar" style="height:17px;"></div>
+              <div class="net-bar" style="height:24px;opacity:1;"></div>
+            </div>
+            ₦300,000
+          </div>
+          <div class="net-sub-row">
+            <div class="net-sub-item">
+              <span class="net-sub-icon" style="color:var(--income-col);"><i class="bi bi-graph-up-arrow"></i></span>
+              <div>
+                <div class="net-sub-label">Total Income</div>
+                <div class="net-sub-val">₦425,000</div>
+              </div>
+            </div>
+            <div class="net-sub-item">
+              <span class="net-sub-icon" style="color:var(--expense-col);"><i class="bi bi-graph-down-arrow"></i></span>
+              <div>
+                <div class="net-sub-label">Total Expenses</div>
+                <div class="net-sub-val">₦125,000</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tax-prov-card">
+          <div class="tax-prov-top">
+            <div class="tax-prov-icon"><i class="bi bi-wallet2"></i></div>
+            <div class="tax-prov-badge">Tax Provision</div>
+          </div>
+          <div class="tax-prov-label">Estimated Liability</div>
+          <div class="tax-prov-amount">₦45,000</div>
+          <div class="tax-prov-bar-bg"><div class="tax-prov-bar-fill"></div></div>
+          <div class="tax-prov-note">15% of net monthly income</div>
+        </div>
+
+      </div>
+
+      <!-- Table Card -->
+      <div class="table-card">
+
+        <div class="filter-bar">
+          <div class="pill-group">
+            <button class="pill active">All</button>
+            <button class="pill">Income</button>
+            <button class="pill">Expenses</button>
+          </div>
+          <div class="filter-right">
+            <button class="btn-filter"><i class="bi bi-sliders"></i> Filter</button>
+            <button class="btn-month"><i class="bi bi-calendar3"></i> This Month</button>
+            <button class="btn-new-entry"><i class="bi bi-plus"></i> <span class="btn-label">New Entry</span></button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="tx-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th class="col-cat">Category</th>
+                <th class="col-status">Status</th>
+                <th class="right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td><div class="tx-date">Oct 24, 2023</div></td>
+                <td>
+                  <div class="tx-desc-wrap">
+                    <div class="tx-icon" style="background:rgba(0,196,106,0.1);color:var(--green);">
+                      <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                    <div>
+                      <div class="tx-name">Upwork Freelance Payout</div>
+                      <div class="tx-sub">Project: Mobile App UI</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-cat"><span class="category-tag">Consulting</span></td>
+                <td class="col-status">
+                  <div class="status-row">
+                    <div class="status-dot success"></div>
+                    <span class="status-label success">Success</span>
+                  </div>
+                </td>
+                <td><div class="tx-amount credit">+₦240,000</div></td>
+              </tr>
+
+              <tr>
+                <td><div class="tx-date">Oct 22, 2023</div></td>
+                <td>
+                  <div class="tx-desc-wrap">
+                    <div class="tx-icon"><i class="bi bi-cloud-fill"></i></div>
+                    <div>
+                      <div class="tx-name">AWS Hosting Services</div>
+                      <div class="tx-sub">ID: AWS-99283-TR</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-cat"><span class="category-tag">Software</span></td>
+                <td class="col-status">
+                  <div class="status-row">
+                    <div class="status-dot success"></div>
+                    <span class="status-label success">Success</span>
+                  </div>
+                </td>
+                <td><div class="tx-amount debit">–₦18,500</div></td>
+              </tr>
+
+              <tr>
+                <td><div class="tx-date">Oct 20, 2023</div></td>
+                <td>
+                  <div class="tx-desc-wrap">
+                    <div class="tx-icon" style="background:rgba(224,149,32,0.1);color:var(--pending-col);">
+                      <i class="bi bi-receipt"></i>
+                    </div>
+                    <div>
+                      <div class="tx-name">Client: Zenith Studio</div>
+                      <div class="tx-sub">Invoice #9022</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-cat"><span class="category-tag">Consulting</span></td>
+                <td class="col-status">
+                  <div class="status-row">
+                    <div class="status-dot pending"></div>
+                    <span class="status-label pending">Pending</span>
+                  </div>
+                </td>
+                <td><div class="tx-amount credit">+₦60,000</div></td>
+              </tr>
+
+              <tr>
+                <td><div class="tx-date">Oct 18, 2023</div></td>
+                <td>
+                  <div class="tx-desc-wrap">
+                    <div class="tx-icon"><i class="bi bi-building"></i></div>
+                    <div>
+                      <div class="tx-name">WeWork Membership</div>
+                      <div class="tx-sub">Monthly Pass</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-cat"><span class="category-tag">Office</span></td>
+                <td class="col-status">
+                  <div class="status-row">
+                    <div class="status-dot success"></div>
+                    <span class="status-label success">Success</span>
+                  </div>
+                </td>
+                <td><div class="tx-amount debit">–₦45,000</div></td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-row">
+          <div class="page-info">Showing 1 to 4 of 24 transactions</div>
+          <div class="page-btns">
+            <button class="page-btn" style="font-size:.7rem;"><i class="bi bi-chevron-left"></i></button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <button class="page-btn" style="font-size:.7rem;"><i class="bi bi-chevron-right"></i></button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Row -->
+      <div class="bottom-row">
+
+        <div class="deduction-card">
+          <div class="deduction-icon-wrap"><i class="bi bi-stars"></i></div>
+          <div>
+            <div class="deduction-title">Smart Deduction Suggestion</div>
+            <p class="deduction-body">Based on your recent "AWS Hosting" transactions, we've identified ₦18,500 that could be flagged as a recurring business expense. Marking this could save you up to ₦2,775 in tax this quarter.</p>
+            <div class="deduction-action">Apply to all matching entries →</div>
+          </div>
+        </div>
+
+        <div class="export-card">
+          <div class="export-icon-wrap"><i class="bi bi-download"></i></div>
+          <div class="export-title">Export Data</div>
+          <p class="export-sub">Generate PDF or CSV reports for your accountant.</p>
+          <button class="btn-export">Download PDF</button>
+          <button class="btn-export">Export CSV</button>
+        </div>
+
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<script>
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const knob   = document.getElementById('knob');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    knob.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.page-btn').forEach(b => {
+    if (!b.querySelector('i')) {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('.page-btn').forEach(x => { if (!x.querySelector('i')) x.classList.remove('active'); });
+        b.classList.add('active');
+      });
+    }
+  });
+</script>
+</body>
+</html>

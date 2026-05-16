@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaxMate – Contact</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+
+    /* ══════════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════════ */
+    [data-theme="light"] {
+      --bg:             #f5f7f5;
+      --bg-nav:         rgba(255,255,255,0.92);
+      --bg-card:        #ffffff;
+      --bg-input:       #f9faf9;
+      --bg-contact-row: #ffffff;
+      --bg-footer:      #f5f7f5;
+      --bg-overlay:     rgba(0,0,0,0.45);
+      --text:           #0c1a10;
+      --text-muted:     #5a7060;
+      --text-label:     #7a8f80;
+      --border:         #e0e8e2;
+      --border-input:   #d4ddd6;
+      --green:          #00c46a;
+      --green-dark:     #009e56;
+      --green-dim:      rgba(0,196,106,0.1);
+      --green-mid:      rgba(0,196,106,0.25);
+      --shadow-card:    0 2px 24px rgba(0,0,0,0.07);
+      --toggle-track:   #e2ede7;
+      --placeholder:    #a0b0a5;
+      --select-arrow:   #5a7060;
+    }
+
+    [data-theme="dark"] {
+      --bg:             #0a0f0d;
+      --bg-nav:         rgba(10,15,13,0.92);
+      --bg-card:        #111816;
+      --bg-input:       #0e1510;
+      --bg-contact-row: #111816;
+      --bg-footer:      #0a0f0d;
+      --bg-overlay:     rgba(0,0,0,0.65);
+      --text:           #f0f5f2;
+      --text-muted:     #8fa89a;
+      --text-label:     #6a8a78;
+      --border:         rgba(255,255,255,0.08);
+      --border-input:   rgba(255,255,255,0.1);
+      --green:          #00c46a;
+      --green-dark:     #009e56;
+      --green-dim:      rgba(0,196,106,0.1);
+      --green-mid:      rgba(0,196,106,0.25);
+      --shadow-card:    0 2px 32px rgba(0,0,0,0.4);
+      --toggle-track:   #1e2922;
+      --placeholder:    #4a6a58;
+      --select-arrow:   #8fa89a;
+    }
+
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      transition: background .35s, color .35s;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+    /* ══════════════════════════════════════
+       THEME TOGGLE — same position as transactions
+    ══════════════════════════════════════ */
+    .theme-toggle {
+      position: fixed; top: 3.05rem; right: 0.2rem; z-index: 99999;
+      background: var(--toggle-track); border: 1px solid var(--border);
+      border-radius: 50px; width: 54px; height: 28px;
+      cursor: pointer; display: flex; align-items: center; padding: 3px 4px;
+      transition: background .35s, border-color .35s;
+      box-shadow: var(--shadow-card);
+    }
+    .toggle-knob {
+      width: 22px; height: 22px; background: var(--green);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; line-height: 1; transition: transform .35s; flex-shrink: 0;
+    }
+    [data-theme="light"] .toggle-knob { transform: translateX(0); }
+    [data-theme="dark"]  .toggle-knob { transform: translateX(24px); }
+
+    /* ══════════════════════════════════════
+       MOBILE NAV OVERLAY
+    ══════════════════════════════════════ */
+    .nav-overlay {
+      display: none; position: fixed; inset: 0;
+      background: var(--bg-overlay); z-index: 998;
+    }
+    .nav-overlay.show { display: block; }
+
+    /* ══════════════════════════════════════
+       NAVBAR — fixed top, matches homepage style
+    ══════════════════════════════════════ */
+    .navbar-custom {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+      background: var(--bg-nav);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 0;
+      transition: background .35s, border-color .35s;
+    }
+    .navbar-inner {
+      display: flex; align-items: center;
+      gap: 1rem; padding: 0 1.5rem;
+    }
+
+    /* Brand */
+    .navbar-brand {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem;
+      color: var(--text); text-decoration: none; transition: color .35s;
+      flex-shrink: 0;
+    }
+    .navbar-brand span { color: var(--green); }
+
+    /* Desktop nav links — centred */
+    .nav-links-desktop {
+      display: flex; align-items: center; gap: .25rem;
+      margin: 0 auto;
+    }
+    .nav-link-item {
+      font-size: .9rem; color: var(--text-muted);
+      text-decoration: none; padding: .4rem .8rem;
+      border-radius: 6px; transition: color .2s;
+    }
+    .nav-link-item:hover { color: var(--text); }
+    .nav-link-item.active {
+      color: var(--green);
+      text-decoration: underline; text-underline-offset: 3px;
+    }
+
+    /* Auth buttons */
+    .nav-auth { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
+    .btn-login {
+      font-size: .87rem; color: var(--text-muted);
+      text-decoration: none; padding: .4rem .8rem;
+      transition: color .2s;
+    }
+    .btn-login:hover { color: var(--text); }
+    .btn-signup {
+      background: var(--green); color: #fff;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: .87rem;
+      border-radius: 50px; padding: .42rem 1.2rem; border: none;
+      text-decoration: none; cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-signup:hover { background: var(--green-dark); transform: translateY(-1px); color: #fff; }
+
+    /* Hamburger — mobile only */
+    .hamburger {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: 8px; padding: .32rem .5rem; cursor: pointer;
+      color: var(--text-muted); font-size: 1.1rem;
+      transition: border-color .35s, color .2s; flex-shrink: 0;
+      align-items: center; margin-left: auto;
+    }
+    .hamburger:hover { color: var(--text); border-color: var(--green); }
+    @media (max-width: 900px) {
+      .nav-links-desktop { display: none; }
+      .nav-auth { display: none; }
+      .hamburger { display: flex; }
+    }
+
+    /* ── OFF-CANVAS MOBILE MENU ── */
+    .mobile-menu {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 270px; max-width: 85vw;
+      background: var(--bg-card); z-index: 9999;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s ease, background .35s;
+      box-shadow: -4px 0 32px rgba(0,0,0,0.18);
+      border-left: 1px solid var(--border);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+
+    .mobile-menu-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.3rem;
+      border-bottom: 1px solid var(--border);
+      transition: border-color .35s;
+    }
+    .mobile-menu-brand {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+      color: var(--text); transition: color .35s;
+    }
+    .mobile-menu-brand span { color: var(--green); }
+    .mobile-menu-close {
+      background: none; border: none; color: var(--text-muted);
+      font-size: 1.2rem; cursor: pointer; padding: .1rem;
+      transition: color .2s;
+    }
+    .mobile-menu-close:hover { color: var(--text); }
+
+    .mobile-nav-links {
+      flex: 1; padding: 1rem 0; overflow-y: auto;
+    }
+    .mobile-nav-link {
+      display: block; padding: .75rem 1.4rem;
+      font-size: .95rem; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color .2s, background .2s, border-color .2s;
+    }
+    .mobile-nav-link:hover { color: var(--text); background: var(--green-dim); }
+    .mobile-nav-link.active {
+      color: var(--green); font-weight: 700;
+      background: var(--green-dim); border-left-color: var(--green);
+    }
+
+    .mobile-nav-footer {
+      padding: 1.2rem 1.4rem;
+      border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: .6rem;
+      transition: border-color .35s;
+    }
+    .mobile-btn-login {
+      text-align: center; padding: .6rem;
+      border: 1px solid var(--border); border-radius: 50px;
+      font-size: .9rem; color: var(--text-muted);
+      text-decoration: none; transition: border-color .2s, color .2s;
+    }
+    .mobile-btn-login:hover { border-color: var(--green); color: var(--green); }
+    .mobile-btn-signup {
+      text-align: center; padding: .62rem;
+      background: var(--green); color: #fff;
+      border-radius: 50px; font-family: 'Syne', sans-serif;
+      font-weight: 700; font-size: .9rem;
+      text-decoration: none; transition: background .2s;
+    }
+    .mobile-btn-signup:hover { background: var(--green-dark); color: #fff; }
+
+    /* ══════════════════════════════════════
+       PAGE CONTENT (offset for fixed navbar)
+    ══════════════════════════════════════ */
+    .page-body { padding-top: 62px; } /* navbar height */
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
+    .hero {
+      padding: 5.5rem 0 3.5rem;
+      background: var(--bg); transition: background .35s;
+    }
+    .hero-title {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800; line-height: 1.08;
+      letter-spacing: -.025em; margin-bottom: 1rem;
+    }
+    .hero-title .accent { color: var(--green); }
+    .hero-sub {
+      color: var(--text-muted); font-size: 1rem;
+      line-height: 1.7; max-width: 520px; transition: color .35s;
+    }
+
+    /* ══════════════════════════════════════
+       CONTENT SECTION
+    ══════════════════════════════════════ */
+    .content-section {
+      padding: 0 0 5rem;
+      background: var(--bg); transition: background .35s;
+    }
+
+    /* Form card */
+    .form-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2.2rem;
+      box-shadow: var(--shadow-card);
+      transition: background .35s, border-color .35s;
+    }
+    .form-card h3 { font-size: 1.5rem; font-weight: 800; margin-bottom: .35rem; }
+    .form-card .form-desc { color: var(--text-muted); font-size: .9rem; margin-bottom: 1.6rem; transition: color .35s; }
+
+    .field-label {
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-label);
+      margin-bottom: .4rem; display: block; transition: color .35s;
+    }
+    .form-input {
+      width: 100%; background: var(--bg-input);
+      border: 1px solid var(--border-input); border-radius: 8px;
+      padding: .7rem 1rem; font-family: 'DM Sans', sans-serif;
+      font-size: .92rem; color: var(--text); outline: none;
+      transition: border-color .2s, background .35s, color .35s;
+      -webkit-appearance: none;
+    }
+    .form-input::placeholder { color: var(--placeholder); }
+    .form-input:focus { border-color: var(--green); }
+
+    .form-select-wrap { position: relative; }
+    .form-select-wrap::after {
+      content: '›'; position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      color: var(--select-arrow); pointer-events: none; font-size: 1rem;
+    }
+    select.form-input { cursor: pointer; }
+    textarea.form-input { resize: none; height: 130px; }
+
+    .btn-send {
+      width: 100%; background: var(--green); color: #fff;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+      border: none; border-radius: 8px; padding: .85rem;
+      cursor: pointer; transition: background .2s, transform .15s; margin-top: 1.4rem;
+    }
+    .btn-send:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+    /* Direct support */
+    .support-col { padding-left: 1.5rem; }
+    .support-eyebrow {
+      font-size: .72rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--green); margin-bottom: .5rem;
+    }
+    .support-title { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; line-height: 1.15; margin-bottom: 1.4rem; }
+    .contact-row {
+      background: var(--bg-contact-row); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.2rem;
+      display: flex; align-items: center; gap: 1rem; margin-bottom: .75rem;
+      transition: background .35s, border-color .35s;
+    }
+    .contact-icon {
+      width: 40px; height: 40px; background: var(--green-dim);
+      border: 1px solid var(--green-mid); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--green); font-size: 1rem; flex-shrink: 0; transition: background .35s;
+    }
+    .contact-row-title { font-weight: 700; font-size: .93rem; margin-bottom: .1rem; }
+    .contact-row-val { font-size: .87rem; color: var(--text-muted); transition: color .35s; }
+
+    /* ══════════════════════════════════════
+       PRESENCE
+    ══════════════════════════════════════ */
+    .presence-section { padding: 4rem 0 0; background: var(--bg); transition: background .35s; }
+    .presence-eyebrow {
+      font-size: .72rem; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--green); margin-bottom: .5rem;
+    }
+    .presence-title { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: .6rem; }
+    .presence-sub { color: var(--text-muted); font-size: .95rem; line-height: 1.65; max-width: 440px; transition: color .35s; }
+    .presence-address { display: flex; align-items: center; gap: .45rem; font-size: .9rem; color: var(--text-muted); transition: color .35s; }
+    .presence-address i { color: var(--green); }
+
+    .building-wrap {
+      position: relative; width: 100%; height: 360px;
+      border-radius: 16px; overflow: hidden; margin-top: 2rem;
+    }
+    .building-bg {
+      width: 100%; height: 100%;
+      background: linear-gradient(180deg, #87CEEB 0%, #b0d4e8 35%, #c8d8c0 35%, #c8d8c0 100%);
+      position: relative; overflow: hidden;
+    }
+    [data-theme="dark"] .building-bg {
+      background: linear-gradient(180deg, #1a2535 0%, #243040 35%, #1a2218 35%, #1a2218 100%);
+    }
+    .office-card {
+      position: absolute; bottom: 1.5rem; left: 1.5rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem 1.3rem; max-width: 240px;
+      box-shadow: var(--shadow-card); transition: background .35s, border-color .35s;
+    }
+    .office-card h5 { font-size: .97rem; font-weight: 700; margin-bottom: .3rem; }
+    .office-card p { font-size: .82rem; color: var(--text-muted); line-height: 1.55; margin: 0; transition: color .35s; }
+
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    footer {
+      background: var(--bg-footer); border-top: 1px solid var(--border);
+      padding: 2.2rem 0; margin-top: 4rem;
+      transition: background .35s, border-color .35s;
+    }
+    .footer-brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--text); transition: color .35s; }
+    .footer-brand span { color: var(--green); }
+    .footer-copy { font-size: .78rem; color: var(--text-label); margin-top: .2rem; text-transform: uppercase; letter-spacing: .06em; transition: color .35s; }
+    .footer-links { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: flex-end; }
+    .footer-link { font-size: .78rem; color: var(--text-muted); text-decoration: none; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; transition: color .2s; }
+    .footer-link:hover { color: var(--green); }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 991px) {
+      .support-col { margin-top: 2rem; }
+      .hero { padding: 4.5rem 0 2.5rem; }
+    }
+    @media (max-width: 767px) {
+      .footer-links { justify-content: flex-start; margin-top: 1rem; }
+      .building-wrap { height: 260px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark/light mode">
+  <div class="toggle-knob" id="knob">☀️</div>
+</button>
+
+<!-- Mobile nav overlay -->
+<div class="nav-overlay" id="navOverlay" onclick="closeMobileMenu()"></div>
+
+<!-- Off-canvas mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-header">
+    <div class="mobile-menu-brand">Tax<span>Mate</span></div>
+    <button class="mobile-menu-close" onclick="closeMobileMenu()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="mobile-nav-links">
+    <a href="#" class="mobile-nav-link">Home</a>
+    <a href="#" class="mobile-nav-link">About</a>
+    <a href="#" class="mobile-nav-link active">Contact</a>
+  </div>
+  <div class="mobile-nav-footer">
+    <a href="#" class="mobile-btn-login">Login</a>
+    <a href="#" class="mobile-btn-signup">Sign Up</a>
+  </div>
+</div>
+
+<!-- ══════ NAVBAR ══════ -->
+<nav class="navbar-custom">
+  <div class="navbar-inner container">
+    <a class="navbar-brand" href="#">Tax<span>Mate</span></a>
+
+    <!-- Desktop nav -->
+    <div class="nav-links-desktop">
+      <a href="#" class="nav-link-item">Home</a>
+      <a href="#" class="nav-link-item">About</a>
+      <a href="#" class="nav-link-item active">Contact</a>
+    </div>
+
+    <!-- Desktop auth -->
+    <div class="nav-auth">
+      <a href="#" class="btn-login">Login</a>
+      <a href="#" class="btn-signup">Sign Up</a>
+    </div>
+
+    <!-- Hamburger — mobile only -->
+    <button class="hamburger" onclick="openMobileMenu()" aria-label="Open menu">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- PAGE BODY -->
+<div class="page-body">
+
+  <!-- ══════ HERO ══════ -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">Let's Talk <span class="accent">Finance</span>.</h1>
+      <p class="hero-sub">Expert tax guidance is just a message away. Reach out to our dedicated team of financial specialists for personalized support tailored to your unique needs.</p>
+    </div>
+  </section>
+
+  <!-- ══════ FORM + SUPPORT ══════ -->
+  <section class="content-section">
+    <div class="container">
+      <div class="row g-4 align-items-start">
+
+        <!-- Form -->
+        <div class="col-lg-6">
+          <div class="form-card">
+            <h3>Get a Consultation.</h3>
+            <p class="form-desc">Fill out the form below and an advisor will be in touch shortly.</p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-sm-6">
+                <label class="field-label">Full Name</label>
+                <input type="text" class="form-input" placeholder="Jane Doe"/>
+              </div>
+              <div class="col-sm-6">
+                <label class="field-label">Email Address</label>
+                <input type="email" class="form-input" placeholder="jane@example.com"/>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="field-label">Service Interest</label>
+              <div class="form-select-wrap">
+                <select class="form-input">
+                  <option>Tax Filing Inquiry</option>
+                  <option>Audit Protection</option>
+                  <option>Deduction Discovery</option>
+                  <option>Business Tax Planning</option>
+                  <option>General Consultation</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-1">
+              <label class="field-label">Message</label>
+              <textarea class="form-input" placeholder="How can we help you today?"></textarea>
+            </div>
+
+            <button class="btn-send">Send Message</button>
+          </div>
+        </div>
+
+        <!-- Direct Support -->
+        <div class="col-lg-6 support-col">
+          <div class="support-eyebrow">Direct Support</div>
+          <h2 class="support-title">Human help for<br>complex taxes.</h2>
+
+          <div class="contact-row">
+            <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
+            <div>
+              <div class="contact-row-title">Email Us</div>
+              <div class="contact-row-val">support@taxmate.com</div>
+            </div>
+          </div>
+
+          <div class="contact-row">
+            <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
+            <div>
+              <div class="contact-row-title">Call Us</div>
+              <div class="contact-row-val">+1 (800) TAX-MATE</div>
+            </div>
+          </div>
+
+          <div class="contact-row">
+            <div class="contact-icon"><i class="bi bi-clock-fill"></i></div>
+            <div>
+              <div class="contact-row-title">Availability</div>
+              <div class="contact-row-val">Mon-Fri: 9am — 6pm EST</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ OUR PRESENCE ══════ -->
+  <section class="presence-section">
+    <div class="container">
+
+      <div class="row align-items-end justify-content-between mb-3">
+        <div class="col-md-7">
+          <div class="presence-eyebrow">Our Presence</div>
+          <h2 class="presence-title">Global Headquarters</h2>
+          <p class="presence-sub">Visit us in the heart of the financial district for a face-to-face consultation with our senior advisors.</p>
+        </div>
+        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+          <div class="presence-address justify-content-md-end">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span>1221 Avenue of the Americas, New York, NY</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="building-wrap">
+        <div class="building-bg">
+          <svg width="100%" height="100%" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#5ba3c9"/><stop offset="100%" stop-color="#a8cfe0"/>
+              </linearGradient>
+              <linearGradient id="sky-dark" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0d1b2a"/><stop offset="100%" stop-color="#1a2f45"/>
+              </linearGradient>
+              <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#8a9e8e"/><stop offset="100%" stop-color="#6d8070"/>
+              </linearGradient>
+              <linearGradient id="ground-dark" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a2218"/><stop offset="100%" stop-color="#111810"/>
+              </linearGradient>
+              <linearGradient id="bldA" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#b8c5b0"/><stop offset="100%" stop-color="#8a9e8e"/>
+              </linearGradient>
+              <linearGradient id="bldB" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#c8c0b0"/><stop offset="100%" stop-color="#a09080"/>
+              </linearGradient>
+            </defs>
+            <rect width="900" height="360" fill="url(#sky)" class="sky-rect"/>
+            <rect x="0"   y="180" width="60"  height="180" fill="#9aaea0" opacity=".6"/>
+            <rect x="55"  y="160" width="45"  height="200" fill="#8a9e90" opacity=".6"/>
+            <rect x="95"  y="140" width="55"  height="220" fill="#aabaa8" opacity=".5"/>
+            <rect x="145" y="100" width="40"  height="260" fill="#8a9e90" opacity=".55"/>
+            <rect x="180" y="120" width="70"  height="240" fill="#9aaea0" opacity=".5"/>
+            <rect x="245" y="80"  width="50"  height="280" fill="#aabaa8" opacity=".55"/>
+            <rect x="290" y="60"  width="35"  height="300" fill="#8a9e90" opacity=".6"/>
+            <rect x="320" y="100" width="80"  height="260" fill="#9aaea0" opacity=".5"/>
+            <rect x="395" y="70"  width="55"  height="290" fill="#aabaa8" opacity=".55"/>
+            <rect x="445" y="50"  width="40"  height="310" fill="#8a9e90" opacity=".6"/>
+            <rect x="480" y="90"  width="65"  height="270" fill="#9aaea0" opacity=".5"/>
+            <rect x="540" y="110" width="50"  height="250" fill="#aabaa8" opacity=".55"/>
+            <rect x="585" y="70"  width="75"  height="290" fill="#8a9e90" opacity=".6"/>
+            <rect x="655" y="130" width="45"  height="230" fill="#9aaea0" opacity=".5"/>
+            <rect x="695" y="100" width="60"  height="260" fill="#aabaa8" opacity=".55"/>
+            <rect x="750" y="80"  width="50"  height="280" fill="#8a9e90" opacity=".6"/>
+            <rect x="795" y="120" width="55"  height="240" fill="#9aaea0" opacity=".5"/>
+            <rect x="845" y="150" width="55"  height="210" fill="#aabaa8" opacity=".55"/>
+            <rect x="0" y="300" width="900" height="60" fill="url(#ground)" class="ground-rect"/>
+            <rect x="0" y="335" width="900" height="3" fill="rgba(255,255,255,0.15)"/>
+            <rect x="150" y="338" width="60" height="4" fill="rgba(255,255,255,0.25)" rx="2"/>
+            <rect x="350" y="338" width="60" height="4" fill="rgba(255,255,255,0.25)" rx="2"/>
+            <rect x="550" y="338" width="60" height="4" fill="rgba(255,255,255,0.25)" rx="2"/>
+            <rect x="750" y="338" width="60" height="4" fill="rgba(255,255,255,0.25)" rx="2"/>
+            <rect x="370" y="30"  width="100" height="270" fill="url(#bldB)"/>
+            <rect x="380" y="45"  width="12" height="18" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="398" y="45"  width="12" height="18" fill="rgba(255,255,200,0.4)" rx="1"/>
+            <rect x="416" y="45"  width="12" height="18" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="434" y="45"  width="12" height="18" fill="rgba(255,255,200,0.3)" rx="1"/>
+            <rect x="380" y="72"  width="12" height="18" fill="rgba(255,255,200,0.3)" rx="1"/>
+            <rect x="398" y="72"  width="12" height="18" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="416" y="72"  width="12" height="18" fill="rgba(255,255,200,0.4)" rx="1"/>
+            <rect x="434" y="72"  width="12" height="18" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="60"  y="80"  width="130" height="220" fill="url(#bldA)"/>
+            <rect x="72"  y="95"  width="10" height="14" fill="rgba(255,255,200,0.4)" rx="1"/>
+            <rect x="88"  y="95"  width="10" height="14" fill="rgba(255,255,200,0.3)" rx="1"/>
+            <rect x="104" y="95"  width="10" height="14" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="120" y="95"  width="10" height="14" fill="rgba(255,255,200,0.3)" rx="1"/>
+            <rect x="680" y="60"  width="140" height="240" fill="url(#bldA)"/>
+            <rect x="692" y="78"  width="10" height="14" fill="rgba(255,255,200,0.4)" rx="1"/>
+            <rect x="708" y="78"  width="10" height="14" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="724" y="78"  width="10" height="14" fill="rgba(255,255,200,0.3)" rx="1"/>
+            <rect x="740" y="78"  width="10" height="14" fill="rgba(255,255,200,0.5)" rx="1"/>
+            <rect x="0"   y="300" width="240" height="60" fill="rgba(0,0,0,0.06)"/>
+            <rect x="660" y="300" width="240" height="60" fill="rgba(0,0,0,0.06)"/>
+            <rect x="0" y="355" width="900" height="5" fill="#00c46a" opacity=".35"/>
+          </svg>
+
+          <div class="office-card">
+            <h5>New York Office</h5>
+            <p>Our flagship office features state-of-the-art secure consultation rooms and a dedicated client lounge.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════ FOOTER ══════ -->
+  <footer>
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="footer-brand">Tax<span>Mate</span></div>
+          <div class="footer-copy">© 2024 TaxMate Financial. All rights reserved.</div>
+        </div>
+        <div class="col-md-6 mt-3 mt-md-0">
+          <div class="footer-links">
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Security</a>
+            <a href="#" class="footer-link">Help Center</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /page-body -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ── Theme ── */
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const knob   = document.getElementById('knob');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    knob.textContent = isDark ? '☀️' : '🌙';
+    const skyRect    = document.querySelector('.sky-rect');
+    const groundRect = document.querySelector('.ground-rect');
+    if (skyRect)    skyRect.setAttribute('fill', isDark ? 'url(#sky)'    : 'url(#sky-dark)');
+    if (groundRect) groundRect.setAttribute('fill', isDark ? 'url(#ground)' : 'url(#ground-dark)');
+  }
+
+  /* ── Mobile menu ── */
+  function openMobileMenu() {
+    document.getElementById('mobileMenu').classList.add('open');
+    document.getElementById('navOverlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileMenu() {
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.getElementById('navOverlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+</script>
+</body>
+</html>

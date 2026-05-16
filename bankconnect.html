@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaxMate – Bank Connections</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+
+    /* ══════════════════════════════════════
+       THEME TOKENS
+    ══════════════════════════════════════ */
+    [data-theme="light"] {
+      --bg:              #f2f5f3;
+      --bg-sidebar:      #ffffff;
+      --bg-topbar:       rgba(255,255,255,0.95);
+      --bg-card:         #ffffff;
+      --bg-card2:        #f8fbf9;
+      --bg-input:        #f0f4f1;
+      --bg-overlay:      rgba(0,0,0,0.45);
+      --bg-bank-icon:    #e8f4ed;
+      --bg-ledger-icon:  #eaf5ef;
+      --bg-warn-icon:    rgba(230,130,0,0.1);
+      --text:            #0c1a10;
+      --text-muted:      #5a7060;
+      --text-label:      #8a9e8e;
+      --border:          #e4ebe6;
+      --border-sidebar:  #edf2ee;
+      --green:           #1a7a3c;
+      --green-accent:    #00c46a;
+      --green-dim:       rgba(0,196,106,0.10);
+      --green-mid:       rgba(0,196,106,0.22);
+      --green-glow:      rgba(0,196,106,0.15);
+      --shadow:          0 2px 16px rgba(0,0,0,0.07);
+      --shadow-card:     0 1px 8px rgba(0,0,0,0.06);
+      --toggle-track:    #d4e8da;
+      --nav-active-bg:   rgba(0,196,106,0.08);
+      --nav-active-bar:  #1a7a3c;
+      --security-bg:     linear-gradient(135deg,#1a7a3c 0%,#0d5a28 100%);
+      --live-sync-bg:    rgba(0,196,106,0.10);
+      --live-sync-col:   #1a7a3c;
+      --standby-bg:      rgba(140,160,148,0.12);
+      --standby-col:     #5a7060;
+      --warn-col:        #b87000;
+      --progress-bg:     #e4ebe6;
+      --progress-fill:   #1a7a3c;
+      --breadcrumb-col:  #8a9e8e;
+      --logs-btn-bg:     #f0f4f1;
+      --card-bank-bg:    #ffffff;
+    }
+
+    [data-theme="dark"] {
+      --bg:              #0a0f0d;
+      --bg-sidebar:      #0e1510;
+      --bg-topbar:       rgba(14,21,16,0.95);
+      --bg-card:         #111816;
+      --bg-card2:        #141c18;
+      --bg-input:        #0e1510;
+      --bg-overlay:      rgba(0,0,0,0.65);
+      --bg-bank-icon:    #0d2016;
+      --bg-ledger-icon:  #0d2016;
+      --bg-warn-icon:    rgba(240,180,0,0.10);
+      --text:            #f0f5f2;
+      --text-muted:      #8fa89a;
+      --text-label:      #6a8a78;
+      --border:          rgba(255,255,255,0.07);
+      --border-sidebar:  rgba(255,255,255,0.06);
+      --green:           #00c46a;
+      --green-accent:    #00c46a;
+      --green-dim:       rgba(0,196,106,0.10);
+      --green-mid:       rgba(0,196,106,0.22);
+      --green-glow:      rgba(0,196,106,0.18);
+      --shadow:          0 2px 24px rgba(0,0,0,0.4);
+      --shadow-card:     0 1px 12px rgba(0,0,0,0.35);
+      --toggle-track:    #1e2922;
+      --nav-active-bg:   rgba(0,196,106,0.10);
+      --nav-active-bar:  #00c46a;
+      --security-bg:     linear-gradient(135deg,#0d5a28 0%,#083d1a 100%);
+      --live-sync-bg:    rgba(0,196,106,0.12);
+      --live-sync-col:   #00c46a;
+      --standby-bg:      rgba(255,255,255,0.07);
+      --standby-col:     #8fa89a;
+      --warn-col:        #f0b040;
+      --progress-bg:     #1a2a1e;
+      --progress-fill:   #00c46a;
+      --breadcrumb-col:  #5a7a68;
+      --logs-btn-bg:     #1a2218;
+      --card-bank-bg:    #111816;
+    }
+
+    /* ══════════════════════════════════════
+       BASE
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%; font-family: 'DM Sans', sans-serif;
+      background: var(--bg); color: var(--text);
+      transition: background .35s, color .35s; overflow: hidden;
+    }
+    h1,h2,h3,h4,h5 { font-family: 'Syne', sans-serif; }
+
+    /* ══════════════════════════════════════
+       THEME TOGGLE — consistent with all pages
+    ══════════════════════════════════════ */
+    .theme-toggle {
+      position: fixed; top: 3.05rem; right: 0.2rem; z-index: 99999;
+      background: var(--toggle-track); border: 1px solid var(--border);
+      border-radius: 50px; width: 54px; height: 28px;
+      cursor: pointer; display: flex; align-items: center; padding: 3px 4px;
+      transition: background .35s, border-color .35s; box-shadow: var(--shadow);
+    }
+    .toggle-knob {
+      width: 22px; height: 22px; background: var(--green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; line-height: 1; transition: transform .35s; flex-shrink: 0;
+    }
+    [data-theme="light"] .toggle-knob { transform: translateX(0); }
+    [data-theme="dark"]  .toggle-knob { transform: translateX(24px); }
+
+    /* ══════════════════════════════════════
+       APP SHELL
+    ══════════════════════════════════════ */
+    .app-shell { display: flex; height: 100vh; overflow: hidden; position: relative; }
+
+    /* ══════════════════════════════════════
+       SIDEBAR — off-canvas on mobile
+    ══════════════════════════════════════ */
+    .sidebar {
+      width: 210px; flex-shrink: 0;
+      background: var(--bg-sidebar); border-right: 1px solid var(--border-sidebar);
+      display: flex; flex-direction: column;
+      transition: background .35s, border-color .35s, transform .3s;
+      z-index: 200; height: 100%;
+    }
+    @media (max-width: 900px) {
+      .sidebar {
+        position: fixed; top: 0; left: 0; bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 32px rgba(0,0,0,0.2);
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: var(--bg-overlay); z-index: 190;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    /* Brand */
+    .sidebar-brand {
+      padding: 1.1rem 1.3rem 1rem;
+      border-bottom: 1px solid var(--border-sidebar);
+      transition: border-color .35s;
+      display: flex; align-items: flex-start; justify-content: space-between;
+    }
+    .brand-logo-wrap { display: flex; align-items: center; gap: .7rem; }
+    .brand-logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--green); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; color: #fff; flex-shrink: 0;
+    }
+    .brand-name {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+      color: var(--text); text-decoration: none; display: block; transition: color .35s;
+    }
+    .brand-name span { color: var(--green); }
+    .brand-sub {
+      font-size: .56rem; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--text-label);
+      margin-top: .1rem; transition: color .35s;
+    }
+    .sidebar-close {
+      display: none; background: none; border: none;
+      color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: .1rem;
+      transition: color .2s;
+    }
+    .sidebar-close:hover { color: var(--text); }
+    @media (max-width: 900px) { .sidebar-close { display: block; } }
+
+    /* Nav */
+    .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+    .nav-item {
+      display: flex; align-items: center; gap: .75rem;
+      padding: .65rem 1.3rem; font-size: .9rem; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color .2s, background .2s, border-color .2s; cursor: pointer;
+    }
+    .nav-item:hover { color: var(--text); background: var(--nav-active-bg); }
+    .nav-item.active {
+      color: var(--green); font-weight: 700;
+      background: var(--nav-active-bg); border-left-color: var(--nav-active-bar);
+    }
+    .nav-item i { font-size: 1rem; width: 18px; text-align: center; }
+
+    /* Sidebar footer */
+    .sidebar-footer {
+      padding: .8rem 1.1rem; border-top: 1px solid var(--border-sidebar);
+      transition: border-color .35s;
+    }
+    .sidebar-footer-link {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .5rem .2rem; font-size: .87rem; color: var(--text-muted);
+      text-decoration: none; cursor: pointer; transition: color .2s;
+    }
+    .sidebar-footer-link:hover { color: var(--text); }
+    .sidebar-footer-link i { font-size: .95rem; width: 18px; text-align: center; }
+
+    /* ══════════════════════════════════════
+       MAIN AREA
+    ══════════════════════════════════════ */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--bg-topbar); backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: .65rem 1.4rem; display: flex; align-items: center; gap: .9rem;
+      transition: background .35s, border-color .35s; flex-shrink: 0;
+    }
+    .hamburger {
+      display: none; background: none; border: 1px solid var(--border);
+      border-radius: 8px; padding: .32rem .5rem; cursor: pointer;
+      color: var(--text-muted); font-size: 1.1rem;
+      transition: border-color .35s, color .2s; flex-shrink: 0; align-items: center;
+    }
+    .hamburger:hover { color: var(--text); border-color: var(--green); }
+    @media (max-width: 900px) { .hamburger { display: flex; } }
+
+    /* Breadcrumb */
+    .topbar-breadcrumb {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--breadcrumb-col); transition: color .35s;
+    }
+    .topbar-breadcrumb span { color: var(--green); }
+    .topbar-breadcrumb i { font-size: .65rem; }
+
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: .75rem; }
+    .topbar-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: .95rem; cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .topbar-icon:hover { background: var(--bg-input); color: var(--text); }
+    .topbar-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: .68rem;
+      color: #fff; flex-shrink: 0; cursor: pointer;
+    }
+
+    /* CONTENT */
+    .content { flex: 1; overflow-y: auto; padding: 1.5rem 1.4rem 2rem; transition: background .35s; }
+
+    /* ══════════════════════════════════════
+       PAGE HEADER
+    ══════════════════════════════════════ */
+    .page-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .page-title { font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: .3rem; }
+    .page-sub   { color: var(--text-muted); font-size: .9rem; line-height: 1.6; max-width: 440px; transition: color .35s; }
+    .btn-add-institution {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--green); color: #fff;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: .87rem;
+      border: none; border-radius: 50px; padding: .6rem 1.3rem;
+      cursor: pointer; flex-shrink: 0;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn-add-institution:hover { opacity: .88; transform: translateY(-1px); }
+
+    /* ══════════════════════════════════════
+       MAIN GRID
+    ══════════════════════════════════════ */
+    .main-grid { display: grid; grid-template-columns: 1fr 300px; gap: 1.2rem; }
+
+    /* ══════════════════════════════════════
+       LEFT COLUMN
+    ══════════════════════════════════════ */
+
+    /* Bank cards row */
+    .bank-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem; }
+
+    .bank-card {
+      background: var(--card-bank-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.5rem 1.4rem;
+      box-shadow: var(--shadow-card); position: relative;
+      transition: background .35s, border-color .35s;
+    }
+
+    /* Status badge */
+    .status-badge-wrap { position: absolute; top: 1.1rem; right: 1.1rem; }
+    .status-badge {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      border-radius: 50px; padding: .22rem .7rem;
+    }
+    .status-badge.live-sync { background: var(--live-sync-bg); color: var(--live-sync-col); }
+    .status-badge.standby   { background: var(--standby-bg);   color: var(--standby-col); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.green { background: var(--green-accent); }
+    .status-dot.grey  { background: var(--standby-col); }
+
+    /* Bank icon */
+    .bank-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--bg-bank-icon); display: flex; align-items: center;
+      justify-content: center; font-size: 1.1rem; color: var(--green);
+      margin-bottom: 1.1rem; overflow: hidden; transition: background .35s;
+    }
+    .bank-icon.dark-bg { background: #1a1a2e; }
+    .bank-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+    .bank-name   { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; margin-bottom: .25rem; }
+    .bank-detail { font-size: .8rem; color: var(--text-muted); margin-bottom: .9rem; transition: color .35s; }
+    .bank-balance {
+      font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800;
+      letter-spacing: -.02em; margin-bottom: 0;
+    }
+
+    .bank-menu {
+      position: absolute; bottom: 1.3rem; right: 1.2rem;
+      display: flex; flex-direction: column; gap: 3px; cursor: pointer; padding: .3rem;
+    }
+    .bank-menu span {
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--text-muted); display: block; transition: background .35s;
+    }
+    .bank-menu:hover span { background: var(--green); }
+
+    /* Security card */
+    .security-card {
+      background: var(--security-bg); border-radius: 16px; padding: 1.8rem 2rem;
+      position: relative; overflow: hidden; box-shadow: var(--shadow-card);
+    }
+    .security-card::before {
+      content: ''; position: absolute; right: -20px; bottom: -20px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: rgba(255,255,255,0.05); pointer-events: none;
+    }
+    .security-eyebrow {
+      display: inline-flex; align-items: center; gap: .45rem;
+      font-size: .65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.7); margin-bottom: .8rem;
+    }
+    .security-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: .9rem; max-width: 340px; }
+    .security-body  { font-size: .87rem; color: rgba(255,255,255,0.65); line-height: 1.7; margin-bottom: 1.3rem; max-width: 380px; }
+    .security-badges { display: flex; gap: .75rem; flex-wrap: wrap; }
+    .sec-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(255,255,255,0.12); border-radius: 50px;
+      padding: .3rem .85rem; font-size: .75rem; font-weight: 600;
+      color: rgba(255,255,255,0.85);
+    }
+    .security-shield {
+      position: absolute; right: 2rem; bottom: 1.8rem;
+      font-size: 6rem; color: rgba(255,255,255,0.10); pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════
+       RIGHT COLUMN
+    ══════════════════════════════════════ */
+
+    /* Sync Ledger card */
+    .sync-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-card); margin-bottom: 1.2rem;
+      transition: background .35s, border-color .35s;
+    }
+    .sync-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.1rem; }
+    .sync-title  { font-size: .97rem; font-weight: 700; }
+    .sync-refresh {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--bg-input); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .82rem; color: var(--text-muted); cursor: pointer;
+      transition: border-color .2s, color .2s, background .35s;
+    }
+    .sync-refresh:hover { border-color: var(--green); color: var(--green); }
+
+    .sync-item {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .75rem 0; border-bottom: 1px solid var(--border);
+      transition: border-color .35s;
+    }
+    .sync-item:last-of-type { border-bottom: none; }
+    .sync-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg-ledger-icon); display: flex; align-items: center;
+      justify-content: center; font-size: .88rem; color: var(--green);
+      flex-shrink: 0; transition: background .35s;
+    }
+    .sync-icon.warn { background: var(--bg-warn-icon); color: var(--warn-col); }
+    .sync-info { flex: 1; min-width: 0; }
+    .sync-name   { font-size: .87rem; font-weight: 600; }
+    .sync-detail { font-size: .75rem; color: var(--text-muted); margin-top: .08rem; transition: color .35s; }
+    .sync-detail.warn { color: var(--warn-col); font-weight: 600; }
+    .sync-time   { font-size: .72rem; color: var(--text-label); flex-shrink: 0; transition: color .35s; }
+
+    .btn-view-logs {
+      width: 100%; margin-top: 1rem;
+      background: var(--logs-btn-bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: .6rem;
+      font-family: 'Syne', sans-serif; font-size: .78rem; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: var(--green); cursor: pointer;
+      transition: border-color .2s, background .35s;
+    }
+    .btn-view-logs:hover { border-color: var(--green); }
+
+    /* Network Health card */
+    .network-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 1.4rem 1.5rem;
+      box-shadow: var(--shadow-card); transition: background .35s, border-color .35s;
+    }
+    .network-title { font-size: .97rem; font-weight: 700; margin-bottom: .25rem; }
+    .network-sub   { font-size: .8rem; color: var(--text-muted); margin-bottom: 1.1rem; transition: color .35s; }
+
+    .progress-row { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.2rem; }
+    .progress-bar-bg   { flex: 1; background: var(--progress-bg); border-radius: 50px; height: 7px; transition: background .35s; }
+    .progress-bar-fill { background: var(--progress-fill); border-radius: 50px; height: 7px; width: 92%; transition: background .35s; }
+    .progress-pct { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; flex-shrink: 0; }
+
+    .network-stats { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .net-stat {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: 12px; padding: .9rem 1rem;
+      transition: background .35s, border-color .35s;
+    }
+    .net-stat-label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-label); margin-bottom: .35rem; transition: color .35s; }
+    .net-stat-val   { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .bank-cards-row { grid-template-columns: 1fr; }
+      .content { padding: 1rem; }
+      .page-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+  <div class="toggle-knob" id="knob">☀️</div>
+</button>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<div class="app-shell">
+
+  <!-- ══════ SIDEBAR ══════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-wrap">
+        <div class="brand-logo-icon"><i class="bi bi-bank2"></i></div>
+        <div>
+          <a class="brand-name" href="#">Tax<span>Mate</span></a>
+          <div class="brand-sub">Premium Editorial Tax</div>
+        </div>
+      </div>
+      <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="#"><i class="bi bi-grid-fill"></i> <span>Dashboard</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-arrow-left-right"></i> <span>Transactions</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-bar-chart-fill"></i> <span>Tax Reports</span></a>
+      <a class="nav-item active" href="#"><i class="bi bi-bank2"></i> <span>Bank Connections</span></a>
+      <a class="nav-item" href="#"><i class="bi bi-gear-fill"></i> <span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="sidebar-footer-link"><i class="bi bi-question-circle"></i> Help Center</a>
+      <a class="sidebar-footer-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+  </aside>
+
+  <!-- ══════ MAIN ══════ -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="hamburger" onclick="openSidebar()" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="topbar-breadcrumb">
+        Institutions <i class="bi bi-chevron-right"></i> <span>Connections</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-icon"><i class="bi bi-bell"></i></div>
+        <div class="topbar-avatar">U</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Verified Sources</h1>
+          <p class="page-sub">Manage your linked accounts and real-time data streaming for automated tax categorization.</p>
+        </div>
+        <button class="btn-add-institution"><i class="bi bi-plus-circle"></i> Add Institution</button>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="main-grid">
+
+        <!-- ── LEFT COLUMN ── -->
+        <div>
+
+          <!-- Bank cards -->
+          <div class="bank-cards-row">
+
+            <!-- Chase Sapphire -->
+            <div class="bank-card">
+              <div class="status-badge-wrap">
+                <div class="status-badge live-sync">
+                  <div class="status-dot green"></div> Live Sync
+                </div>
+              </div>
+              <div class="bank-icon">
+                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="28" height="22" rx="4" fill="#1a4b8c"/>
+                  <rect x="4" y="8" width="20" height="2" fill="white" opacity=".8"/>
+                  <rect x="4" y="12" width="8" height="2" fill="white" opacity=".6"/>
+                </svg>
+              </div>
+              <div class="bank-name">Chase Sapphire</div>
+              <div class="bank-detail">...4492 · Business Credit</div>
+              <div class="bank-balance">$14,205.50</div>
+              <div class="bank-menu">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <!-- GS Marcus -->
+            <div class="bank-card">
+              <div class="status-badge-wrap">
+                <div class="status-badge standby">
+                  <div class="status-dot grey"></div> Standby
+                </div>
+              </div>
+              <div class="bank-icon dark-bg">
+                <svg width="28" height="22" viewBox="0 0 28 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="28" height="22" rx="4" fill="#1c1c1e"/>
+                  <text x="5" y="15" font-family="sans-serif" font-size="9" fill="white" font-weight="700">GS</text>
+                </svg>
+              </div>
+              <div class="bank-name">GS Marcus</div>
+              <div class="bank-detail">...8810 · High Yield Savings</div>
+              <div class="bank-balance">$52,440.00</div>
+              <div class="bank-menu">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Security card -->
+          <div class="security-card">
+            <div class="security-eyebrow"><i class="bi bi-shield-fill-check"></i> Bank-Grade Security</div>
+            <div class="security-title">Encryption is in our DNA.</div>
+            <p class="security-body">We use Plaid and Finicity to ensure your credentials never touch our servers. Your data is protected by 256-bit AES encryption—the same standard used by global financial institutions.</p>
+            <div class="security-badges">
+              <div class="sec-badge"><i class="bi bi-lock-fill"></i> SSL Secured</div>
+              <div class="sec-badge"><i class="bi bi-patch-check-fill"></i> SOC2 Compliant</div>
+            </div>
+            <div class="security-shield"><i class="bi bi-shield-fill"></i></div>
+          </div>
+
+        </div><!-- /left column -->
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div>
+
+          <!-- Sync Ledger -->
+          <div class="sync-card">
+            <div class="sync-header">
+              <div class="sync-title">Sync Ledger</div>
+              <div class="sync-refresh"><i class="bi bi-arrow-clockwise"></i></div>
+            </div>
+
+            <!-- Chase Sapphire — 2M ago -->
+            <div class="sync-item">
+              <div class="sync-icon"><i class="bi bi-arrow-repeat"></i></div>
+              <div class="sync-info">
+                <div class="sync-name">Chase Sapphire</div>
+                <div class="sync-detail">12 transactions imported</div>
+              </div>
+              <div class="sync-time">2M AGO</div>
+            </div>
+
+            <!-- GS Marcus — 5H ago -->
+            <div class="sync-item">
+              <div class="sync-icon"><i class="bi bi-arrow-repeat"></i></div>
+              <div class="sync-info">
+                <div class="sync-name">GS Marcus</div>
+                <div class="sync-detail">Balance updated</div>
+              </div>
+              <div class="sync-time">5H AGO</div>
+            </div>
+
+            <!-- Amex Gold — 1D ago (warning) -->
+            <div class="sync-item">
+              <div class="sync-icon warn"><i class="bi bi-exclamation-triangle-fill"></i></div>
+              <div class="sync-info">
+                <div class="sync-name">Amex Gold</div>
+                <div class="sync-detail warn">Re-authentication required</div>
+              </div>
+              <div class="sync-time">1D AGO</div>
+            </div>
+
+            <!-- Chase Sapphire — 1D ago -->
+            <div class="sync-item">
+              <div class="sync-icon"><i class="bi bi-arrow-repeat"></i></div>
+              <div class="sync-info">
+                <div class="sync-name">Chase Sapphire</div>
+                <div class="sync-detail">4 transactions imported</div>
+              </div>
+              <div class="sync-time">1D AGO</div>
+            </div>
+
+            <button class="btn-view-logs">View Full Logs</button>
+          </div>
+
+          <!-- Network Health -->
+          <div class="network-card">
+            <div class="network-title">Network Health</div>
+            <p class="network-sub">Connection stability across all institutions.</p>
+
+            <div class="progress-row">
+              <div class="progress-bar-bg"><div class="progress-bar-fill"></div></div>
+              <div class="progress-pct">92%</div>
+            </div>
+
+            <div class="network-stats">
+              <div class="net-stat">
+                <div class="net-stat-label">Total Assets</div>
+                <div class="net-stat-val">$66.6k</div>
+              </div>
+              <div class="net-stat">
+                <div class="net-stat-label">Sources</div>
+                <div class="net-stat-val">03</div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /right column -->
+
+      </div><!-- /main-grid -->
+    </div><!-- /content -->
+  </div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<script>
+  /* ── Theme ── */
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const knob   = document.getElementById('knob');
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    knob.textContent = isDark ? '☀️' : '🌙';
+  }
+
+  /* ── Sidebar ── */
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+</script>
+</body>
+</html>
